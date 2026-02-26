@@ -21,7 +21,7 @@ export function ProductCard({ product }: { product: any }) {
   const category = product.categories?.[0]?.name
 
   return (
-    <Link href={`/marketplace/${product.handle}`}>
+    <Link href={`/artefacts/${product.handle}`}>
       <Card className="group overflow-hidden transition-shadow hover:shadow-lg">
         <div className="relative aspect-[3/4] overflow-hidden bg-muted">
           {product.thumbnail ? (

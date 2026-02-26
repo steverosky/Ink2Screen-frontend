@@ -460,7 +460,7 @@ export function CheckoutForm() {
           Add some items before checking out.
         </p>
         <Button asChild>
-          <Link href="/marketplace">Browse Marketplace</Link>
+          <Link href="/artefacts">Browse The Artifacts</Link>
         </Button>
       </div>
     )

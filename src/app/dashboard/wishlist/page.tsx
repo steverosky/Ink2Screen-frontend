@@ -145,10 +145,10 @@ export default function WishlistPage() {
           <Heart className="mb-4 h-12 w-12 text-muted-foreground" />
           <h2 className="mb-2 text-lg font-medium">Your wishlist is empty</h2>
           <p className="mb-6 text-sm text-muted-foreground">
-            Browse our marketplace and save products you love.
+            Browse our collection and save products you love.
           </p>
           <Button asChild>
-            <Link href="/marketplace">Browse Marketplace</Link>
+            <Link href="/artefacts">Browse The Artifacts</Link>
           </Button>
         </div>
       ) : (
@@ -162,7 +162,7 @@ export default function WishlistPage() {
               <Link
                 href={
                   item.product?.handle
-                    ? `/marketplace/${item.product.handle}`
+                    ? `/artefacts/${item.product.handle}`
                     : "#"
                 }
                 className="block"

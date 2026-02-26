@@ -91,27 +91,27 @@ export function ProductReviews({ productId }: { productId: string }) {
   if (loading) {
     return (
       <div className="py-8">
-        <h2 className="mb-4 text-xl font-semibold">Customer Reviews</h2>
-        <p className="text-sm text-muted-foreground">Loading reviews...</p>
+        <h2 className="mb-4 text-xl font-semibold text-[#e0e0e0]">Customer Reviews</h2>
+        <p className="text-sm text-[#888]">Loading reviews...</p>
       </div>
     )
   }
 
   return (
     <div className="py-8">
-      <h2 className="mb-4 text-xl font-semibold">Customer Reviews</h2>
+      <h2 className="mb-4 text-xl font-semibold text-[#e0e0e0]">Customer Reviews</h2>
 
       {/* Summary */}
       {count > 0 ? (
         <div className="mb-6 flex items-center gap-3">
           <StarRating rating={Math.round(averageRating)} size="lg" />
-          <span className="text-lg font-medium">{averageRating}</span>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-lg font-medium text-[#e0e0e0]">{averageRating}</span>
+          <span className="text-sm text-[#888]">
             ({count} {count === 1 ? "review" : "reviews"})
           </span>
         </div>
       ) : (
-        <p className="mb-6 text-muted-foreground">
+        <p className="mb-6 text-[#888]">
           No reviews yet. Be the first to share your thoughts!
         </p>
       )}
@@ -119,15 +119,15 @@ export function ProductReviews({ productId }: { productId: string }) {
       {/* Review List */}
       <div className="space-y-6">
         {reviews.map((review) => (
-          <div key={review.id} className="border-b pb-6 last:border-b-0">
+          <div key={review.id} className="border-b border-[#333] pb-6 last:border-b-0">
             <div className="mb-2 flex items-center gap-3">
               <StarRating rating={review.rating} />
               {review.title && (
-                <span className="font-medium">{review.title}</span>
+                <span className="font-medium text-[#e0e0e0]">{review.title}</span>
               )}
             </div>
-            <p className="mb-2 text-sm">{review.content}</p>
-            <p className="text-xs text-muted-foreground">
+            <p className="mb-2 text-sm text-[#e0e0e0]">{review.content}</p>
+            <p className="text-xs text-[#888]">
               By {review.first_name} {review.last_name} &mdash;{" "}
               {new Date(review.created_at).toLocaleDateString()}
             </p>
@@ -139,7 +139,7 @@ export function ProductReviews({ productId }: { productId: string }) {
       {reviews.length < count && (
         <Button
           variant="outline"
-          className="mt-6"
+          className="mt-6 border-brand-gold text-brand-gold hover:bg-brand-gold/10"
           onClick={handleLoadMore}
           disabled={loadingMore}
         >

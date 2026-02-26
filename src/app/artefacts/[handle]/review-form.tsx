@@ -27,9 +27,9 @@ export function ReviewForm({
 
   if (!isAuthenticated || !customer) {
     return (
-      <div className="rounded-lg border bg-muted/30 p-6">
-        <p className="text-sm text-muted-foreground">
-          <Link href="/login" className="font-medium text-primary hover:underline">
+      <div className="rounded-lg border border-[#333] bg-[#121212] p-6">
+        <p className="text-sm text-[#888]">
+          <Link href="/login" className="font-medium text-brand-gold hover:underline">
             Sign in
           </Link>{" "}
           to leave a review.
@@ -40,8 +40,8 @@ export function ReviewForm({
 
   if (success) {
     return (
-      <div className="rounded-lg border bg-green-50 p-6 dark:bg-green-950/20">
-        <p className="text-sm font-medium text-green-800 dark:text-green-200">
+      <div className="rounded-lg border border-green-800/50 bg-green-950/20 p-6">
+        <p className="text-sm font-medium text-green-200">
           Thank you! Your review has been submitted and is pending approval.
         </p>
       </div>
@@ -87,12 +87,12 @@ export function ReviewForm({
   }
 
   return (
-    <div className="rounded-lg border p-6">
-      <h3 className="mb-4 text-lg font-semibold">Write a Review</h3>
+    <div className="rounded-lg border border-[#333] bg-[#121212] p-6">
+      <h3 className="mb-4 text-lg font-semibold text-[#e0e0e0]">Write a Review</h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Star Rating Selector */}
         <div>
-          <Label>Rating</Label>
+          <Label className="text-[#e0e0e0]">Rating</Label>
           <div className="mt-1 flex items-center gap-1">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
@@ -113,7 +113,7 @@ export function ReviewForm({
               </button>
             ))}
             {rating > 0 && (
-              <span className="ml-2 text-sm text-muted-foreground">
+              <span className="ml-2 text-sm text-[#888]">
                 {rating}/5
               </span>
             )}
@@ -122,19 +122,20 @@ export function ReviewForm({
 
         {/* Title */}
         <div>
-          <Label htmlFor="review-title">Title (optional)</Label>
+          <Label htmlFor="review-title" className="text-[#e0e0e0]">Title (optional)</Label>
           <Input
             id="review-title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Summary of your review"
             maxLength={200}
+            className="border-[#333] bg-[#1a1a1a] text-[#e0e0e0]"
           />
         </div>
 
         {/* Content */}
         <div>
-          <Label htmlFor="review-content">Your Review</Label>
+          <Label htmlFor="review-content" className="text-[#e0e0e0]">Your Review</Label>
           <textarea
             id="review-content"
             value={content}
@@ -142,13 +143,17 @@ export function ReviewForm({
             placeholder="Share your experience with this product..."
             required
             rows={4}
-            className="mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="mt-1 w-full rounded-md border border-[#333] bg-[#1a1a1a] px-3 py-2 text-sm text-[#e0e0e0] placeholder:text-[#666] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
           />
         </div>
 
         {error && <p className="text-sm text-destructive">{error}</p>}
 
-        <Button type="submit" disabled={loading || rating === 0 || !content.trim()}>
+        <Button
+          type="submit"
+          disabled={loading || rating === 0 || !content.trim()}
+          className="bg-brand-gold text-[#050505] hover:bg-brand-gold-dark"
+        >
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Submit Review
         </Button>

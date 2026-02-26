@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
 const exploreLinks = [
-  { label: "Shop", href: "/marketplace" },
+  { label: "Shop", href: "/artefacts" },
   { label: "Ink2Screen LLC", href: "/about" },
   { label: "Events", href: "/events" },
   { label: "Contact", href: "/contact" },

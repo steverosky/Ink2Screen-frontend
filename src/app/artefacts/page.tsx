@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
+import { sdk, getDefaultRegionId } from "@/lib/sdk"
 
 export const metadata: Metadata = {
   title: "The Artifacts",
@@ -8,29 +9,27 @@ export const metadata: Metadata = {
     "Limited editions, narratives, and curated goods from Ink2Screen LLC Publishing.",
 }
 
-const products = [
-  {
-    title: "Raison D\u2019etre",
-    subtitle: "HARDCOVER",
-    price: "$24.99",
-    image: "/images/book-cover-front.png",
-    href: "/artefacts/raison-detre",
-  },
-  {
-    title: "Raison D\u2019etre Cap",
-    subtitle: "Cotton",
-    price: "$24.99",
-    image: "/images/product-hat.png",
-    href: "/marketplace",
-  },
-  {
-    title: "Raison D\u2019etre Tank",
-    subtitle: "Cotton",
-    price: "$24.99",
-    image: "/images/product-tank.png",
-    href: "/marketplace",
-  },
-]
+function formatPrice(amount: number | undefined | null, currency: string = "usd") {
+  if (amount == null) return ""
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+  }).format(amount)
+}
+
+async function getProducts() {
+  try {
+    const regionId = await getDefaultRegionId()
+    const { products } = await sdk.store.product.list({
+      limit: 20,
+      fields: "+variants.calculated_price",
+      region_id: regionId,
+    })
+    return products
+  } catch {
+    return []
+  }
+}
 
 /* ─── Hero ─── */
 function HeroSection() {
@@ -60,23 +59,17 @@ function HeroSection() {
 }
 
 /* ─── Product Card ─── */
-function ProductCard({
-  title,
-  subtitle,
-  price,
-  image,
-  href,
-}: {
-  title: string
-  subtitle: string
-  price: string
-  image: string
-  href: string
-}) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function ProductCard({ product }: { product: any }) {
+  const firstVariant = product.variants?.[0]
+  const price = firstVariant?.calculated_price?.calculated_amount
+  const currency = firstVariant?.calculated_price?.currency_code || "usd"
+  const category = product.categories?.[0]?.name
+
   return (
     <Link
-      href={href}
-      className="group relative flex h-[560px] w-full flex-col items-center justify-center overflow-hidden bg-[#121212] transition-transform hover:scale-[1.02] md:w-[410px]"
+      href={`/artefacts/${product.handle}`}
+      className="group relative flex h-[560px] w-full flex-col overflow-hidden bg-[#121212] transition-transform hover:scale-[1.02]"
     >
       {/* Background texture */}
       <div className="absolute inset-0">
@@ -89,7 +82,7 @@ function ProductCard({
       </div>
 
       {/* Purple glow behind product */}
-      <div className="absolute left-1/2 top-[40%] h-[193px] w-[194px] -translate-x-1/2 -translate-y-1/2">
+      <div className="absolute left-1/2 top-[35%] h-[193px] w-[194px] -translate-x-1/2 -translate-y-1/2">
         <Image
           src="/images/purple-glow.png"
           alt=""
@@ -99,41 +92,61 @@ function ProductCard({
         />
       </div>
 
-      {/* Product image */}
-      <div className="relative flex h-[355px] items-center justify-center p-6">
-        <Image
-          src={image}
-          alt={title}
-          width={290}
-          height={307}
-          className="h-auto max-h-[307px] w-auto max-w-[290px] object-contain"
-        />
+      {/* Product image — fixed height, uniform display */}
+      <div className="relative flex flex-1 items-center justify-center p-6">
+        {product.thumbnail ? (
+          <div className="relative h-[260px] w-[240px]">
+            <Image
+              src={product.thumbnail}
+              alt={product.title}
+              fill
+              className="object-contain"
+              sizes="240px"
+            />
+          </div>
+        ) : (
+          <div className="flex h-full items-center justify-center text-[#888]">
+            No image
+          </div>
+        )}
       </div>
 
-      {/* Product info */}
-      <div className="relative flex flex-col items-center gap-2 text-center">
-        <h2 className="font-heading text-[32px] font-bold leading-[1.4] tracking-tight text-[#e0e0e0]">
-          {title}
+      {/* Product info — pinned to bottom with fixed height */}
+      <div className="relative flex h-[160px] flex-col items-center justify-center gap-2 px-4 text-center">
+        <h2 className="line-clamp-2 max-w-full font-heading text-xl font-bold leading-[1.3] tracking-tight text-[#e0e0e0] md:text-2xl">
+          {product.title}
         </h2>
         <p className="text-[11px] font-bold tracking-[0.05em] text-[#888]">
-          {subtitle}
+          {category || firstVariant?.title || ""}
+        </p>
+        <p className="mt-1 text-base font-normal leading-[1.7] text-brand-gold">
+          {formatPrice(price, currency)}
         </p>
       </div>
-
-      <p className="relative mt-4 text-base font-normal leading-[1.7] text-brand-gold">
-        {price}
-      </p>
     </Link>
   )
 }
 
 /* ─── Product Grid ─── */
-function ProductGridSection() {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function ProductGridSection({ products }: { products: any[] }) {
+  if (products.length === 0) {
+    return (
+      <section className="bg-[#050505] px-6 py-16">
+        <div className="mx-auto max-w-[1280px] text-center">
+          <p className="text-lg text-[#888]">
+            No products available yet. Check back soon!
+          </p>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section className="bg-[#050505] px-6 py-0">
-      <div className="mx-auto flex max-w-[1280px] flex-col items-center gap-6 md:flex-row md:justify-center">
+      <div className="mx-auto grid max-w-[1280px] grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {products.map((product) => (
-          <ProductCard key={product.title} {...product} />
+          <ProductCard key={product.id} product={product} />
         ))}
       </div>
     </section>
@@ -141,11 +154,13 @@ function ProductGridSection() {
 }
 
 /* ─── Artefacts Page ─── */
-export default function ArtefactsPage() {
+export default async function ArtefactsPage() {
+  const products = await getProducts()
+
   return (
     <div className="bg-[#050505]">
       <HeroSection />
-      <ProductGridSection />
+      <ProductGridSection products={products} />
       {/* Spacer before footer */}
       <div className="h-24" />
     </div>

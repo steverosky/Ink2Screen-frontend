@@ -1,13 +1,13 @@
 "use client"
 
-import { useEffect } from "react"
+import { Suspense, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useCartStore, useAuthStore } from "@/lib/store"
 
-export default function OrderConfirmationPage() {
+function OrderConfirmationContent() {
   const searchParams = useSearchParams()
   const orderId = searchParams.get("orderId")
   const { clearCart } = useCartStore()
@@ -52,7 +52,7 @@ export default function OrderConfirmationPage() {
 
       <div className="flex justify-center gap-4">
         <Button asChild>
-          <Link href="/marketplace">Continue Shopping</Link>
+          <Link href="/artefacts">Continue Shopping</Link>
         </Button>
         {isAuthenticated && (
           <Button variant="outline" asChild>
@@ -61,5 +61,13 @@ export default function OrderConfirmationPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function OrderConfirmationPage() {
+  return (
+    <Suspense>
+      <OrderConfirmationContent />
+    </Suspense>
   )
 }

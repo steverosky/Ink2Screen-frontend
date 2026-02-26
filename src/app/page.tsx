@@ -59,7 +59,7 @@ function HeroSection() {
               asChild
               className="h-14 bg-brand-gold px-8 text-sm font-bold tracking-widest text-[#050505] hover:bg-brand-gold-dark"
             >
-              <Link href="/marketplace">GET THIS BOOK</Link>
+              <Link href="/artefacts">GET THIS BOOK</Link>
             </Button>
             <Button
               asChild
@@ -78,13 +78,26 @@ function HeroSection() {
 
         {/* Right — Book Art */}
         <div className="hidden h-full w-1/2 items-center justify-center lg:flex">
+          {/* Faded book art background — rotated behind */}
+          <div className="absolute right-0 top-[125px] h-[760px] w-[850px]">
+            <Image
+              src="/images/hero-book-art.png"
+              alt=""
+              width={850}
+              height={760}
+              className="h-full w-full -rotate-[92deg] object-contain opacity-40"
+            />
+          </div>
+
           {/* Purple radial glow behind book */}
           <div className="absolute right-0 h-full w-1/2">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(46,0,78,0.5)_0%,rgba(5,5,5,0)_70%)]" />
           </div>
+
+          {/* Book cover on top */}
           <div className="relative h-[660px] w-[500px]">
             <Image
-              src="/images/book-cover-front.png"
+              src="/images/book-cover-back.png"
               alt="Raison D'etre book cover"
               fill
               className="object-contain"
@@ -126,9 +139,6 @@ function EngineeringNarrativesSection() {
         <div className="flex w-full flex-col items-center gap-8 md:flex-row md:gap-8">
           {pillars.map((pillar, i) => (
             <div key={pillar.title} className="flex items-center gap-8">
-              {i > 0 && (
-                <div className="hidden h-20 w-px bg-[#333] md:block" />
-              )}
               <div className="flex w-80 flex-col gap-2 text-center">
                 <p className="text-sm font-semibold tracking-[0.1em] text-[#f0f0f0]">
                   {pillar.title}
@@ -186,14 +196,14 @@ function BookSpotlightSection() {
               asChild
               className="h-14 bg-brand-gold px-8 text-sm font-bold tracking-widest text-[#050505] hover:bg-brand-gold-dark"
             >
-              <Link href="/marketplace">ORDER HARDCOVER</Link>
+              <Link href="/artefacts">ORDER HARDCOVER</Link>
             </Button>
             <Button
               asChild
               variant="outline"
               className="h-14 border-brand-gold px-8 text-sm font-bold tracking-widest text-brand-gold hover:bg-brand-gold/10"
             >
-              <Link href="/marketplace">READ THE FIRST CHAPTER</Link>
+              <Link href="/artefacts">READ THE FIRST CHAPTER</Link>
             </Button>
           </div>
         </div>

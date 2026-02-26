@@ -99,8 +99,8 @@ export default function CartPage() {
           Looks like you haven&apos;t added anything to your cart yet.
         </p>
         <Button size="lg" asChild>
-          <Link href="/marketplace">
-            Browse Marketplace
+          <Link href="/artefacts">
+            Browse The Artifacts
             <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
         </Button>
@@ -231,7 +231,7 @@ export default function CartPage() {
               className="mt-2 w-full"
               asChild
             >
-              <Link href="/marketplace">Continue Shopping</Link>
+              <Link href="/artefacts">Continue Shopping</Link>
             </Button>
           </CardContent>
         </Card>

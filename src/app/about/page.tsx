@@ -349,7 +349,7 @@ function ExperienceCTASection() {
             asChild
             className="h-14 bg-brand-gold px-8 text-sm font-bold tracking-widest text-[#050505] hover:bg-brand-gold-dark"
           >
-            <Link href="/marketplace">VISIT MARKETPLACE</Link>
+            <Link href="/artefacts">VISIT THE ARTIFACTS</Link>
           </Button>
           <Button
             asChild

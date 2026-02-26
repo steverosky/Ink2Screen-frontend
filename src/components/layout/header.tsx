@@ -15,7 +15,6 @@ const navigation = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
   { label: "The Artifacts", href: "/artefacts" },
-  { label: "Marketplace", href: "/marketplace" },
   { label: "Events", href: "/events" },
   { label: "Contact", href: "/contact" },
 ]
@@ -111,7 +110,7 @@ export function Header() {
             asChild
             className="hidden h-11 bg-brand-gold px-6 font-bold text-sm tracking-widest text-[#050505] hover:bg-brand-gold-dark lg:flex"
           >
-            <Link href="/marketplace">START PROJECT</Link>
+            <Link href="/artefacts">START PROJECT</Link>
           </Button>
 
           {/* Search Bar — Desktop */}
@@ -246,7 +245,7 @@ export function Header() {
                   className="h-11 w-full bg-brand-gold font-bold tracking-widest text-[#050505] hover:bg-brand-gold-dark"
                 >
                   <Link
-                    href="/marketplace"
+                    href="/artefacts"
                     onClick={() => setMobileOpen(false)}
                   >
                     START PROJECT
