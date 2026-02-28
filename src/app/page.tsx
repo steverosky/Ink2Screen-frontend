@@ -255,7 +255,7 @@ function TheFeedSection() {
               className="absolute inset-0 h-full w-full object-cover"
             >
               <source
-                src="https://cdn.pixabay.com/video/2020/07/30/45378-445022737_large.mp4"
+                src="/videos/youtube-author-insights.mp4"
                 type="video/mp4"
               />
             </video>
@@ -292,7 +292,7 @@ function TheFeedSection() {
               className="absolute inset-0 h-full w-full object-cover"
             >
               <source
-                src="https://cdn.pixabay.com/video/2024/06/20/217555_large.mp4"
+                src="/videos/tiktok-behind-scenes.mp4"
                 type="video/mp4"
               />
             </video>
