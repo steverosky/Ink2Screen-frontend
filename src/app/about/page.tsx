@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
-import { ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Testimonials } from "@/components/testimonials"
 
 export const metadata: Metadata = {
   title: "About",
@@ -20,6 +20,7 @@ function HeroSection() {
           src="/images/library-bg.jpg"
           alt=""
           fill
+          sizes="100vw"
           className="object-cover opacity-50"
           priority
         />
@@ -31,6 +32,7 @@ function HeroSection() {
           src="/images/hero-bg-texture.jpg"
           alt=""
           fill
+          sizes="100vw"
           className="object-cover opacity-10 mix-blend-soft-light"
         />
       </div>
@@ -68,6 +70,7 @@ function EngineerAuthorSection() {
           src="/images/hero-bg-texture.jpg"
           alt=""
           fill
+          sizes="100vw"
           className="object-cover opacity-10 mix-blend-multiply"
         />
       </div>
@@ -76,7 +79,7 @@ function EngineerAuthorSection() {
         {/* Left — Text */}
         <div
           id="author"
-          className="flex w-full flex-col gap-6 px-6 py-16 md:w-1/2 md:px-20 md:py-[60px]"
+          className="flex w-full flex-col gap-6 px-6 py-16 md:w-1/2 md:px-20 md:py-[70px]"
         >
           <h2 className="font-heading text-4xl font-bold leading-[1.3] tracking-tight text-[#e0e0e0] md:text-5xl">
             THE ENGINEER &amp; THE AUTHOR
@@ -101,29 +104,73 @@ function EngineerAuthorSection() {
         </div>
 
         {/* Right — Portrait */}
-        <div className="relative flex h-[500px] w-full items-center justify-center overflow-hidden bg-[#121212] md:h-auto md:w-1/2">
-          {/* Purple glow */}
-          <div className="absolute inset-0">
-            <Image
-              src="/images/purple-glow-portrait.png"
-              alt=""
-              fill
-              className="object-contain opacity-80"
-            />
-          </div>
+        <div className="relative flex h-[600px] w-full items-center justify-center overflow-hidden bg-[#121212] md:h-auto md:w-1/2">
+          {/* Purple glow (CSS only) */}
+          <div className="absolute left-1/2 top-[45%] h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-purple/25 blur-[150px]" />
 
           {/* Portrait */}
-          <div className="relative h-full w-[540px]">
+          <div className="relative h-full w-[540px] pt-8">
             <Image
               src="/images/sterling-portrait.jpg"
               alt="Sterling R. Smith"
               fill
-              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 540px"
+              className="object-cover object-[center_10%]"
             />
           </div>
         </div>
       </div>
     </section>
+  )
+}
+
+/* ─── Capability Icons (SVG) ─── */
+function LiteraryIcon() {
+  return (
+    <svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Open book */}
+      <rect x="4" y="10" width="18" height="28" rx="2" stroke="#D4AF37" strokeWidth="1.5" fill="none" />
+      <rect x="28" y="10" width="18" height="28" rx="2" stroke="#D4AF37" strokeWidth="1.5" fill="none" />
+      {/* Spine */}
+      <line x1="25" y1="8" x2="25" y2="40" stroke="#D4AF37" strokeWidth="1.5" />
+      {/* Text lines — left page */}
+      <line x1="9" y1="18" x2="18" y2="18" stroke="#D4AF37" strokeWidth="1" opacity="0.6" />
+      <line x1="9" y1="23" x2="18" y2="23" stroke="#D4AF37" strokeWidth="1" opacity="0.6" />
+      <line x1="9" y1="28" x2="18" y2="28" stroke="#D4AF37" strokeWidth="1" opacity="0.6" />
+      {/* Text lines — right page */}
+      <line x1="32" y1="18" x2="41" y2="18" stroke="#D4AF37" strokeWidth="1" opacity="0.6" />
+      <line x1="32" y1="23" x2="41" y2="23" stroke="#D4AF37" strokeWidth="1" opacity="0.6" />
+      <line x1="32" y1="28" x2="41" y2="28" stroke="#D4AF37" strokeWidth="1" opacity="0.6" />
+    </svg>
+  )
+}
+
+function ScreenIcon() {
+  return (
+    <svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Camera body */}
+      <rect x="6" y="14" width="30" height="22" rx="3" stroke="#E0E0E0" strokeWidth="1.5" fill="none" />
+      {/* Lens / play triangle */}
+      <polygon points="18,21 18,31 27,26" stroke="#E0E0E0" strokeWidth="1.5" fill="none" strokeLinejoin="round" />
+      {/* Film reel / viewfinder */}
+      <path d="M36 20 L44 14 L44 36 L36 30" stroke="#E0E0E0" strokeWidth="1.5" fill="none" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function EventsIcon() {
+  return (
+    <svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Ticket outline */}
+      <path
+        d="M5 15 h16 a0 0 0 0 1 0 0 c0 3 2 5 4 5 s4-2 4-5 a0 0 0 0 1 0 0 h16 v20 h-16 a0 0 0 0 1 0 0 c0-3-2-5-4-5 s-4 2-4 5 a0 0 0 0 1 0 0 h-16 z"
+        stroke="#D4AF37"
+        strokeWidth="1.5"
+        fill="none"
+      />
+      {/* Dashed center line */}
+      <line x1="25" y1="17" x2="25" y2="33" stroke="#D4AF37" strokeWidth="1" strokeDasharray="2 2" opacity="0.6" />
+    </svg>
   )
 }
 
@@ -134,23 +181,20 @@ function CapabilitiesSection() {
       title: "LITERARY DEVELOPMENT",
       description:
         "From manuscript refinement to global distribution. We treat books as the foundation of IP.",
-      icon: "/images/icon-literary.png",
-      wide: true,
+      icon: <LiteraryIcon />,
     },
     {
       title: "SCREEN ADAPTATION",
       description:
         "Translating written narratives into visual scripts and production-ready formats for film and TV.",
-      icon: "/images/icon-screen.png",
-      wide: false,
+      icon: <ScreenIcon />,
       highlighted: true,
     },
     {
       title: "EVENTS & EXPERIENCES",
       description:
         "Live engagements, book signings, and the Ink & Indulgence series.",
-      icon: "/images/icon-events.png",
-      fullWidth: true,
+      icon: <EventsIcon />,
     },
   ]
 
@@ -171,6 +215,7 @@ function CapabilitiesSection() {
                   src="/images/hero-bg-texture.jpg"
                   alt=""
                   fill
+                  sizes="(max-width: 768px) 100vw, 60vw"
                   className="object-cover opacity-10 mix-blend-soft-light"
                 />
               </div>
@@ -179,12 +224,7 @@ function CapabilitiesSection() {
                   <p className="flex-1 text-sm font-medium leading-relaxed text-[#888]">
                     {capabilities[0].description}
                   </p>
-                  <Image
-                    src={capabilities[0].icon}
-                    alt=""
-                    width={60}
-                    height={60}
-                  />
+                  {capabilities[0].icon}
                 </div>
                 <p className="font-heading text-2xl font-bold leading-[1.4] tracking-tight text-[#e0e0e0]">
                   {capabilities[0].title}
@@ -199,6 +239,7 @@ function CapabilitiesSection() {
                   src="/images/hero-bg-texture.jpg"
                   alt=""
                   fill
+                  sizes="(max-width: 768px) 100vw, 40vw"
                   className="object-cover opacity-15 mix-blend-soft-light"
                 />
               </div>
@@ -207,12 +248,7 @@ function CapabilitiesSection() {
                   <p className="flex-1 text-sm font-medium leading-relaxed text-[#f0f0f0]">
                     {capabilities[1].description}
                   </p>
-                  <Image
-                    src={capabilities[1].icon}
-                    alt=""
-                    width={60}
-                    height={60}
-                  />
+                  {capabilities[1].icon}
                 </div>
                 <p className="font-heading text-2xl font-bold leading-[1.4] tracking-tight text-[#e0e0e0]">
                   {capabilities[1].title}
@@ -228,6 +264,7 @@ function CapabilitiesSection() {
                 src="/images/hero-bg-texture.jpg"
                 alt=""
                 fill
+                sizes="100vw"
                 className="object-cover opacity-10 mix-blend-soft-light"
               />
             </div>
@@ -236,12 +273,7 @@ function CapabilitiesSection() {
                 <p className="flex-1 text-sm font-medium leading-relaxed text-[#888]">
                   {capabilities[2].description}
                 </p>
-                <Image
-                  src={capabilities[2].icon}
-                  alt=""
-                  width={60}
-                  height={60}
-                />
+                {capabilities[2].icon}
               </div>
               <p className="font-heading text-2xl font-bold leading-[1.4] tracking-tight text-[#e0e0e0]">
                 {capabilities[2].title}
@@ -254,66 +286,7 @@ function CapabilitiesSection() {
   )
 }
 
-/* ─── Testimonials ─── */
-function TestimonialsSection() {
-  return (
-    <section className="relative h-[760px] overflow-hidden bg-gradient-to-br from-brand-gold/20 to-[#aa8324]/20">
-      {/* Texture overlay */}
-      <div className="absolute inset-0">
-        <Image
-          src="/images/hero-bg-texture.jpg"
-          alt=""
-          fill
-          className="object-cover opacity-5 mix-blend-soft-light"
-        />
-      </div>
-
-      <div className="relative mx-auto flex h-full max-w-[1240px] items-center px-6">
-        <div className="flex w-full flex-col overflow-hidden md:flex-row">
-          {/* Photo */}
-          <div className="relative h-[400px] w-full overflow-hidden md:h-auto md:w-[466px]">
-            <Image
-              src="/images/library-bg.jpg"
-              alt="Testimonial"
-              fill
-              className="object-cover"
-            />
-          </div>
-
-          {/* Quote */}
-          <div className="flex flex-1 flex-col gap-6 bg-[#28292a] p-6">
-            <Image
-              src="/images/icon-quote.png"
-              alt=""
-              width={100}
-              height={100}
-            />
-
-            <p className="text-xl font-light leading-relaxed text-[#f0f0f0] md:text-2xl md:leading-[1.6]">
-              &ldquo;Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-              sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-              Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-              reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-              pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-              culpa qui officia deserunt mollit anim id est laborum.&rdquo;
-            </p>
-
-            <p className="text-right text-xl font-medium leading-relaxed text-[#f0f0f0] md:text-2xl">
-              John A. Doe
-            </p>
-
-            <div className="flex flex-col items-end">
-              <Button className="h-14 w-14 bg-brand-gold p-0 hover:bg-brand-gold-dark">
-                <ChevronRight className="h-6 w-6 text-[#050505]" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
+/* ─── Testimonials ─── (uses shared Testimonials component) */
 
 /* ─── Experience the Narrative CTA ─── */
 function ExperienceCTASection() {
@@ -325,6 +298,7 @@ function ExperienceCTASection() {
           src="/images/texture-dark.jpg"
           alt=""
           fill
+          sizes="100vw"
           className="object-cover opacity-10"
         />
       </div>
@@ -335,6 +309,7 @@ function ExperienceCTASection() {
           src="/images/hero-bg-texture.jpg"
           alt=""
           fill
+          sizes="100vw"
           className="object-cover opacity-10 mix-blend-soft-light"
         />
       </div>
@@ -371,7 +346,7 @@ export default function AboutPage() {
       <HeroSection />
       <EngineerAuthorSection />
       <CapabilitiesSection />
-      <TestimonialsSection />
+      <Testimonials />
       <ExperienceCTASection />
     </div>
   )

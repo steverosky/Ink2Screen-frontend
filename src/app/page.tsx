@@ -18,16 +18,8 @@ function HeroSection() {
         />
       </div>
 
-      {/* Purple glow accent */}
-      <div className="absolute left-[110px] top-[60px] h-[382px] w-[384px]">
-        <Image
-          src="/images/purple-glow.png"
-          alt=""
-          width={980}
-          height={980}
-          className="h-full w-full scale-[2.5] object-contain opacity-60"
-        />
-      </div>
+      {/* Purple glow accent (CSS only) */}
+      <div className="absolute left-[10%] top-[10%] h-[400px] w-[500px] rounded-full bg-brand-purple/15 blur-[150px]" />
 
       <div className="relative mx-auto flex h-full max-w-[1440px] items-center">
         {/* Left Content */}
@@ -253,43 +245,76 @@ function TheFeedSection() {
       <div className="relative mx-auto flex max-w-[1088px] flex-col items-center gap-8">
         {/* Video Grid */}
         <div className="flex w-full flex-col gap-4 md:flex-row">
-          {/* Main Video — YouTube */}
-          <div className="relative h-[400px] w-full overflow-hidden rounded-lg bg-white md:h-[632px] md:w-[570px]">
-            <Image
-              src="/images/video-placeholder.jpg"
-              alt="YouTube content"
-              fill
-              className="object-cover"
-            />
-            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-              <p className="font-heading text-2xl font-bold text-white/60">
-                VIDEO PLACEHOLDER
-              </p>
-            </div>
-          </div>
-
-          {/* Side Videos — TikTok */}
-          <div className="flex w-full flex-col gap-4 md:w-[397px]">
-            <div className="relative h-[300px] overflow-hidden rounded-lg bg-white md:h-[470px]">
-              <Image
-                src="/images/video-placeholder.jpg"
-                alt="TikTok content"
-                fill
-                className="object-cover"
+          {/* Main Video — YouTube style */}
+          <div className="relative h-[400px] w-full overflow-hidden rounded-lg bg-[#121212] md:h-[632px] md:w-[570px]">
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="absolute inset-0 h-full w-full object-cover"
+            >
+              <source
+                src="https://cdn.pixabay.com/video/2020/07/30/45378-445022737_large.mp4"
+                type="video/mp4"
               />
-              <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                <p className="font-heading text-xl font-bold text-white/60">
-                  VIDEO PLACEHOLDER
+            </video>
+            {/* Dark overlay with play icon hint */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+            <div className="absolute bottom-6 left-6 flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-gold/90">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="#050505"
+                  className="ml-1 h-5 w-5"
+                >
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white">
+                  YouTube
+                </p>
+                <p className="text-xs text-white/60">
+                  Author Insights
                 </p>
               </div>
             </div>
-            <div className="relative h-[146px] overflow-hidden rounded-lg bg-white">
-              <Image
-                src="/images/video-placeholder.jpg"
-                alt="Social content"
-                fill
-                className="object-cover"
+          </div>
+
+          {/* TikTok style — vertical */}
+          <div className="relative h-[400px] w-full overflow-hidden rounded-lg bg-[#121212] md:h-[632px] md:w-[397px]">
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="absolute inset-0 h-full w-full object-cover"
+            >
+              <source
+                src="https://cdn.pixabay.com/video/2024/06/20/217555_large.mp4"
+                type="video/mp4"
               />
+            </video>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+            <div className="absolute bottom-6 left-6 flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-gold/90">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="#050505"
+                  className="ml-0.5 h-5 w-5"
+                >
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white">
+                  TikTok
+                </p>
+                <p className="text-xs text-white/60">
+                  Behind the Scenes
+                </p>
+              </div>
             </div>
           </div>
         </div>

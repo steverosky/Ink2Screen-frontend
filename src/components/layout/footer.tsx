@@ -32,7 +32,8 @@ export function Footer() {
             alt="Ink2Screen"
             width={86}
             height={78}
-            className="h-[78px] w-auto"
+            className="h-[78px]"
+            style={{ width: "auto" }}
           />
           <Link
             href="/"

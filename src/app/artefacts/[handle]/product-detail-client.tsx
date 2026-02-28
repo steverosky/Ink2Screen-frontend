@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { Minus, Plus } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import { AddToCartButton } from "./add-to-cart-button"
 
@@ -10,14 +9,47 @@ export function ProductDetailClient({ product }: { product: any }) {
   const [detailsOpen, setDetailsOpen] = useState(true)
   const [shippingOpen, setShippingOpen] = useState(false)
 
-  // Build details from product metadata if available
+  // Build details from Medusa product fields + metadata
   const metadata = product.metadata || {}
-  const details = Object.entries(metadata)
-    .filter(([key]) => !key.startsWith("_"))
-    .map(([key, value]) => ({
-      label: key.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()),
-      value: String(value),
-    }))
+  const details: { label: string; value: string }[] = []
+
+  // Custom metadata fields (ASIN, ISBN, Publisher, etc.)
+  const metadataKeyLabels: Record<string, string> = {
+    asin: "ASIN",
+    isbn: "ISBN-13",
+    "isbn_13": "ISBN-13",
+    "isbn-13": "ISBN-13",
+    publisher: "Publisher",
+    publication_date: "Publication date",
+    language: "Language",
+    print_length: "Print length",
+    page_count: "Print length",
+  }
+
+  for (const [key, value] of Object.entries(metadata)) {
+    if (key.startsWith("_") || !value) continue
+    const label =
+      metadataKeyLabels[key.toLowerCase()] ||
+      key.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase())
+    details.push({ label, value: String(value) })
+  }
+
+  // Standard Medusa product fields
+  if (product.material) {
+    details.push({ label: "Material", value: product.material })
+  }
+  if (product.weight) {
+    details.push({ label: "Item Weight", value: `${product.weight} ounces` })
+  }
+  if (product.width && product.length && product.height) {
+    details.push({
+      label: "Dimensions",
+      value: `${product.width} x ${product.length} x ${product.height} inches`,
+    })
+  }
+  if (product.origin_country) {
+    details.push({ label: "Origin Country", value: product.origin_country })
+  }
 
   const category = product.categories?.[0]?.name
 
@@ -47,38 +79,34 @@ export function ProductDetailClient({ product }: { product: any }) {
         <AddToCartButton product={product} />
 
         {/* Details Accordion */}
-        {details.length > 0 && (
-          <>
-            <button
-              onClick={() => setDetailsOpen(!detailsOpen)}
-              className="flex w-full items-center justify-between text-sm font-semibold tracking-[0.1em] text-brand-gold"
-            >
-              <span>DETAILS</span>
-              <span>{detailsOpen ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}</span>
-            </button>
-            {detailsOpen && (
-              <div className="text-base leading-[1.7] text-[#e0e0e0]">
-                {details.map((detail) => (
-                  <p key={detail.label}>
-                    <span className="font-bold">{detail.label}</span>
-                    <span className="text-[#e0e0e0]">
-                      {" "}
-                      : {detail.value}
-                    </span>
-                  </p>
-                ))}
-              </div>
-            )}
-          </>
+        <Separator className="bg-[#333]" />
+        <button
+          onClick={() => setDetailsOpen(!detailsOpen)}
+          className="flex w-full items-center justify-between text-sm font-semibold tracking-[0.1em] text-brand-gold"
+        >
+          <span>DETAILS</span>
+          <span>{detailsOpen ? "−" : "+"}</span>
+        </button>
+        {detailsOpen && details.length > 0 && (
+          <div className="text-base leading-[1.7] text-[#e0e0e0]">
+            {details.map((detail) => (
+              <p key={detail.label}>
+                <span className="font-bold">{detail.label}</span>
+                {" ‏ : ‎ "}
+                {detail.value}
+              </p>
+            ))}
+          </div>
         )}
 
         {/* Shipping Accordion */}
+        <Separator className="bg-[#333]" />
         <button
           onClick={() => setShippingOpen(!shippingOpen)}
           className="flex w-full items-center justify-between text-sm font-semibold tracking-[0.1em] text-brand-gold"
         >
           <span>SHIPPING</span>
-          <span>{shippingOpen ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}</span>
+          <span>{shippingOpen ? "−" : "+"}</span>
         </button>
         {shippingOpen && (
           <div className="text-base leading-[1.7] text-[#e0e0e0]">

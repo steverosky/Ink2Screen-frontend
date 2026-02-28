@@ -4,6 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { sdk, getDefaultRegionId } from "@/lib/sdk"
 import { Separator } from "@/components/ui/separator"
+import { Testimonials } from "@/components/testimonials"
 import { ProductReviews } from "./product-reviews"
 import { ReviewForm } from "./review-form"
 import { ProductDetailClient } from "./product-detail-client"
@@ -87,16 +88,15 @@ function ProductImages({ product }: { product: any }) {
             i === 0 ? "bg-[#121212]" : "bg-gradient-to-br from-brand-gold/20 to-[#aa8324]/20"
           }`}
         >
-          {/* Purple glow for first image */}
+          {/* Purple glow for first image — CSS radial gradient */}
           {i === 0 && (
-            <div className="absolute inset-0">
-              <Image
-                src="/images/purple-glow-portrait.png"
-                alt=""
-                fill
-                className="object-contain opacity-50"
-              />
-            </div>
+            <div
+              className="absolute left-1/2 top-[55%] h-[110%] w-[110%] -translate-x-1/2 -translate-y-1/2"
+              style={{
+                background:
+                  "radial-gradient(ellipse at center, rgba(88, 50, 168, 0.35) 0%, rgba(55, 30, 120, 0.18) 35%, transparent 70%)",
+              }}
+            />
           )}
           {/* Texture overlay for subsequent images */}
           {i > 0 && (
@@ -146,15 +146,8 @@ function RecommendedCard({ product }: { product: any }) {
           className="object-cover opacity-10 mix-blend-multiply"
         />
       </div>
-      <div className="absolute left-1/2 top-[40%] h-[193px] w-[194px] -translate-x-1/2 -translate-y-1/2">
-        <Image
-          src="/images/purple-glow.png"
-          alt=""
-          width={500}
-          height={500}
-          className="h-full w-full scale-[2.5] object-contain opacity-60"
-        />
-      </div>
+      {/* Purple glow (CSS only) */}
+      <div className="absolute left-1/2 top-[40%] h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-purple/20 blur-[120px]" />
       <div className="relative flex h-[355px] items-center justify-center p-6">
         {product.thumbnail ? (
           <Image
@@ -214,53 +207,7 @@ function RecommendedSection({ products }: { products: any[] }) {
   )
 }
 
-/* ─── Testimonial Section ─── */
-function TestimonialSection() {
-  return (
-    <section className="relative h-[760px] overflow-hidden bg-gradient-to-br from-brand-gold/20 to-[#aa8324]/20">
-      <div className="absolute inset-0">
-        <Image
-          src="/images/hero-bg-texture.jpg"
-          alt=""
-          fill
-          className="object-cover opacity-5 mix-blend-soft-light"
-        />
-      </div>
-      <div className="relative mx-auto flex h-full max-w-[1240px] items-center px-6">
-        <div className="flex w-full flex-col overflow-hidden md:flex-row">
-          <div className="relative h-[400px] w-full overflow-hidden md:h-auto md:w-[466px]">
-            <Image
-              src="/images/library-bg.jpg"
-              alt="Testimonial"
-              fill
-              className="object-cover"
-            />
-          </div>
-          <div className="flex flex-1 flex-col gap-6 bg-[#28292a] p-6">
-            <Image
-              src="/images/icon-quote.png"
-              alt=""
-              width={100}
-              height={100}
-            />
-            <p className="text-xl font-light leading-relaxed text-[#f0f0f0] md:text-2xl md:leading-[1.6]">
-              &ldquo;Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-              sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-              Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-              reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-              pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-              culpa qui officia deserunt mollit anim id est laborum.&rdquo;
-            </p>
-            <p className="text-right text-xl font-medium leading-relaxed text-[#f0f0f0] md:text-2xl">
-              John A. Doe
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
+/* ─── Testimonials ─── (uses shared Testimonials component) */
 
 /* ─── Product Detail Page ─── */
 export default async function ProductDetailPage({ params }: Props) {
@@ -301,7 +248,7 @@ export default async function ProductDetailPage({ params }: Props) {
       </section>
 
       <RecommendedSection products={recommended} />
-      <TestimonialSection />
+      <Testimonials />
     </div>
   )
 }

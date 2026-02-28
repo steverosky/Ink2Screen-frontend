@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
 import { sdk, getDefaultRegionId } from "@/lib/sdk"
+import { WishlistButton } from "@/components/wishlist-button"
 
 export const metadata: Metadata = {
   title: "The Artifacts",
@@ -81,16 +82,14 @@ function ProductCard({ product }: { product: any }) {
         />
       </div>
 
-      {/* Purple glow behind product */}
-      <div className="absolute left-1/2 top-[35%] h-[193px] w-[194px] -translate-x-1/2 -translate-y-1/2">
-        <Image
-          src="/images/purple-glow.png"
-          alt=""
-          width={500}
-          height={500}
-          className="h-full w-full scale-[2.5] object-contain opacity-60"
-        />
-      </div>
+      {/* Wishlist button */}
+      <WishlistButton
+        productId={product.id}
+        className="absolute right-4 top-4 z-10"
+      />
+
+      {/* Purple glow behind product (CSS only) */}
+      <div className="absolute left-1/2 top-[35%] h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-purple/20 blur-[120px]" />
 
       {/* Product image — fixed height, uniform display */}
       <div className="relative flex flex-1 items-center justify-center p-6">

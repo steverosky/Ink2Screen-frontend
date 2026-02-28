@@ -5,15 +5,11 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import {
-  Check,
-  ChevronRight,
   Loader2,
-  Lock,
-  Mail,
-  MapPin,
-  Truck,
-  CreditCard,
-  ShoppingCart,
+  ChevronDown,
+  Phone,
+  CheckSquare,
+  Square,
 } from "lucide-react"
 import { loadStripe } from "@stripe/stripe-js"
 import {
@@ -23,13 +19,11 @@ import {
   useElements,
 } from "@stripe/react-stripe-js"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Separator } from "@/components/ui/separator"
 import { useCartStore, useAuthStore } from "@/lib/store"
 import { sdk } from "@/lib/sdk"
+import { cn } from "@/lib/utils"
 
 const stripePromise = process.env.NEXT_PUBLIC_STRIPE_KEY
   ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY)
@@ -43,165 +37,51 @@ function formatPrice(amount: number | undefined, currency: string = "usd") {
   }).format(amount)
 }
 
-const STEPS = [
-  { id: 1, label: "Email", icon: Mail },
-  { id: 2, label: "Address", icon: MapPin },
-  { id: 3, label: "Shipping", icon: Truck },
-  { id: 4, label: "Payment", icon: CreditCard },
-]
-
-// --- Step Indicator ---
-function StepIndicator({ currentStep }: { currentStep: number }) {
+// --- Styled input matching Figma ---
+function CheckoutInput({
+  className,
+  ...props
+}: React.ComponentProps<typeof Input>) {
   return (
-    <div className="mb-8 flex items-center justify-center gap-2">
-      {STEPS.map((step, index) => {
-        const Icon = step.icon
-        const isActive = step.id === currentStep
-        const isComplete = step.id < currentStep
-
-        return (
-          <div key={step.id} className="flex items-center">
-            <div
-              className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
-                isActive
-                  ? "bg-primary text-primary-foreground"
-                  : isComplete
-                    ? "bg-primary/20 text-primary"
-                    : "bg-muted text-muted-foreground"
-              }`}
-            >
-              {isComplete ? (
-                <Check className="h-4 w-4" />
-              ) : (
-                <Icon className="h-4 w-4" />
-              )}
-              <span className="hidden sm:inline">{step.label}</span>
-            </div>
-            {index < STEPS.length - 1 && (
-              <ChevronRight className="mx-1 h-4 w-4 text-muted-foreground" />
-            )}
-          </div>
-        )
-      })}
-    </div>
+    <Input
+      className={cn(
+        "h-12 rounded-none border-[#333] bg-transparent font-body text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-brand-gold focus-visible:ring-offset-0",
+        className
+      )}
+      {...props}
+    />
   )
 }
 
-// --- Order Summary Sidebar ---
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function OrderSummary({ cart }: { cart: any }) {
-  const items = cart?.items || []
-
-  return (
-    <Card className="h-fit">
-      <CardHeader>
-        <CardTitle className="text-lg">Order Summary</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {items.map((item: { id: string; thumbnail?: string; product_title?: string; variant_title?: string; quantity: number; unit_price: number }) => (
-          <div key={item.id} className="flex gap-3">
-            <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded bg-muted">
-              {item.thumbnail ? (
-                <Image
-                  src={item.thumbnail}
-                  alt={item.product_title || "Product"}
-                  fill
-                  className="object-cover"
-                  sizes="48px"
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
-                  No img
-                </div>
-              )}
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium">{item.product_title}</p>
-              <p className="text-xs text-muted-foreground">
-                {item.variant_title} x{item.quantity}
-              </p>
-            </div>
-            <p className="text-sm font-medium">
-              {formatPrice(item.unit_price * item.quantity, cart.currency_code)}
-            </p>
-          </div>
-        ))}
-
-        <Separator />
-
-        <div className="space-y-1.5 text-sm">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Subtotal</span>
-            <span>{formatPrice(cart.item_subtotal, cart.currency_code)}</span>
-          </div>
-          {cart.shipping_total > 0 && (
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Shipping</span>
-              <span>
-                {formatPrice(cart.shipping_total, cart.currency_code)}
-              </span>
-            </div>
-          )}
-          {cart.tax_total > 0 && (
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Tax</span>
-              <span>{formatPrice(cart.tax_total, cart.currency_code)}</span>
-            </div>
-          )}
-        </div>
-
-        <Separator />
-
-        <div className="flex justify-between text-lg font-bold">
-          <span>Total</span>
-          <span className="text-primary">
-            {formatPrice(cart.total, cart.currency_code)}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Lock className="h-3 w-3" />
-          <span>Secure checkout</span>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-// --- Stripe Payment Form (inner component) ---
+// --- Stripe Payment Inner Form ---
 function StripePaymentForm({
   cartId,
   clientSecret,
   onComplete,
+  onError,
 }: {
   cartId: string
   clientSecret: string
   onComplete: (orderId: string) => void
+  onError: (msg: string) => void
 }) {
   const stripe = useStripe()
   const elements = useElements()
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const { clearCart } = useCartStore()
 
-  async function handlePlaceOrder(e: React.FormEvent) {
-    e.preventDefault()
-
+  async function handlePlaceOrder() {
     if (!stripe || !elements) return
 
     setLoading(true)
-    setError(null)
-
     try {
-      // Validate the payment element
       const { error: submitError } = await elements.submit()
       if (submitError) {
-        setError(submitError.message || "Payment validation failed.")
+        onError(submitError.message || "Payment validation failed.")
         setLoading(false)
         return
       }
 
-      // Confirm the payment with Stripe
       const { error: confirmError } = await stripe.confirmPayment({
         elements,
         clientSecret,
@@ -212,60 +92,165 @@ function StripePaymentForm({
       })
 
       if (confirmError) {
-        setError(
-          confirmError.message || "Payment failed. Please try again."
-        )
+        onError(confirmError.message || "Payment failed. Please try again.")
         setLoading(false)
         return
       }
 
-      // Payment confirmed — complete the cart in Medusa
       const result = await sdk.store.cart.complete(cartId)
-
       if (result.type === "order") {
         clearCart()
         onComplete(result.order.id)
       } else {
-        setError("Order could not be completed. Please try again.")
+        onError("Order could not be completed. Please try again.")
       }
     } catch {
-      setError("An unexpected error occurred. Please try again.")
+      onError("An unexpected error occurred. Please try again.")
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <form onSubmit={handlePlaceOrder} className="space-y-4">
+    <div className="space-y-6">
       <PaymentElement />
 
-      {error && (
-        <p className="text-sm text-destructive">{error}</p>
-      )}
-
       <Button
-        type="submit"
-        size="lg"
-        className="w-full"
+        onClick={handlePlaceOrder}
         disabled={!stripe || !elements || loading}
+        className="h-14 w-full rounded-none bg-brand-gold font-body text-sm font-bold uppercase tracking-widest text-background hover:bg-brand-gold/90"
       >
         {loading ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Processing...
-          </>
-        ) : (
-          <>
-            <Lock className="mr-2 h-4 w-4" />
-            Place Order
-          </>
-        )}
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        ) : null}
+        {loading ? "PROCESSING..." : "PAY NOW"}
       </Button>
-    </form>
+      <p className="text-center font-body text-xs font-semibold text-muted-foreground">
+        Secure, encrypted transaction.
+      </p>
+    </div>
   )
 }
 
-// --- Main Checkout Form ---
+// --- Order Sidebar (Right Panel — Frame 92) ---
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function OrderSidebar({ cart }: { cart: any }) {
+  const items = cart?.items || []
+  const [discountCode, setDiscountCode] = useState("")
+
+  return (
+    <div className="space-y-8">
+      {/* Cart Items */}
+      <div className="space-y-4">
+        {items.map(
+          (item: {
+            id: string
+            thumbnail?: string
+            product_title?: string
+            variant_title?: string
+            quantity: number
+            unit_price: number
+          }) => (
+            <div key={item.id} className="flex items-center gap-6">
+              {/* Thumbnail with quantity badge */}
+              <div className="relative">
+                <div className="flex h-[70px] w-[58px] items-center justify-center rounded-sm bg-white/[0.06] p-1.5 shadow-sm">
+                  {item.thumbnail ? (
+                    <Image
+                      src={item.thumbnail}
+                      alt={item.product_title || "Product"}
+                      width={46}
+                      height={58}
+                      className="object-contain"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-[10px] text-muted-foreground">
+                      No img
+                    </div>
+                  )}
+                </div>
+                <div className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-sm border border-foreground/20 bg-[#240046] font-body text-xs font-semibold text-white shadow-sm">
+                  {item.quantity}
+                </div>
+              </div>
+
+              {/* Item details */}
+              <div className="flex flex-1 items-center gap-2">
+                <div className="flex-1">
+                  <p className="font-body text-base font-semibold leading-snug text-foreground">
+                    {item.product_title}
+                  </p>
+                  {item.variant_title && (
+                    <p className="font-body text-sm text-foreground/80">
+                      {item.variant_title}
+                    </p>
+                  )}
+                </div>
+                <p className="font-body text-sm font-bold tracking-wider text-foreground">
+                  {formatPrice(
+                    item.unit_price * item.quantity,
+                    cart.currency_code
+                  )}
+                </p>
+              </div>
+            </div>
+          )
+        )}
+      </div>
+
+      {/* Discount Code */}
+      <div className="flex gap-4">
+        <div className="flex-1">
+          <CheckoutInput
+            placeholder="Gift card or discount code"
+            value={discountCode}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setDiscountCode(e.target.value)
+            }
+          />
+        </div>
+        <Button className="h-12 rounded-none bg-brand-gold px-8 font-body text-sm font-bold uppercase tracking-widest text-background hover:bg-brand-gold/90">
+          APPLY
+        </Button>
+      </div>
+
+      {/* Totals */}
+      <div className="space-y-6">
+        <div className="space-y-4 font-body text-sm font-semibold tracking-wider text-foreground">
+          <div className="flex items-center justify-between">
+            <span>Subtotal</span>
+            <span>{formatPrice(cart.item_subtotal, cart.currency_code)}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span>Shipping</span>
+            <span>
+              {cart.shipping_total > 0
+                ? formatPrice(cart.shipping_total, cart.currency_code)
+                : "Calculated at next step"}
+            </span>
+          </div>
+        </div>
+
+        {/* Total */}
+        <div className="flex items-center justify-between py-2">
+          <span className="font-body text-2xl font-semibold text-brand-gold">
+            Total
+          </span>
+          <div className="flex items-center gap-2">
+            <span className="font-body text-sm font-semibold tracking-wider text-muted-foreground">
+              {cart.currency_code?.toUpperCase()}
+            </span>
+            <span className="font-body text-2xl font-semibold text-brand-gold">
+              {formatPrice(cart.total, cart.currency_code)}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// === MAIN CHECKOUT FORM ===
 export function CheckoutForm() {
   const router = useRouter()
   const { cartId, clearCart } = useCartStore()
@@ -273,31 +258,34 @@ export function CheckoutForm() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [cart, setCart] = useState<any>(null)
-  const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Step 1: Email
-  const [email, setEmail] = useState("")
+  // Phase controls which sections are active
+  const [phase, setPhase] = useState<"info" | "shipping" | "payment">("info")
 
-  // Step 2: Address
+  // Contact
+  const [email, setEmail] = useState("")
+  const [emailOffers, setEmailOffers] = useState(true)
+
+  // Delivery
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
   const [address1, setAddress1] = useState("")
+  const [apartment, setApartment] = useState("")
   const [city, setCity] = useState("")
-  const [province, setProvince] = useState("")
   const [postalCode, setPostalCode] = useState("")
   const [countryCode, setCountryCode] = useState("us")
   const [phone, setPhone] = useState("")
   const [sameAsBilling, setSameAsBilling] = useState(true)
 
-  // Step 3: Shipping
+  // Shipping
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [shippingOptions, setShippingOptions] = useState<any[]>([])
   const [selectedShipping, setSelectedShipping] = useState("")
 
-  // Step 4: Payment
+  // Payment
   const [clientSecret, setClientSecret] = useState<string | null>(null)
 
   // Load cart on mount
@@ -310,21 +298,18 @@ export function CheckoutForm() {
       const { cart: fetchedCart } = await sdk.store.cart.retrieve(cartId)
       setCart(fetchedCart)
 
-      // Pre-fill email if authenticated
       if (isAuthenticated && customer?.email) {
         setEmail(customer.email)
       } else if (fetchedCart.email) {
         setEmail(fetchedCart.email)
       }
 
-      // Pre-fill address if cart already has one
       if (fetchedCart.shipping_address) {
         const addr = fetchedCart.shipping_address
         if (addr.first_name) setFirstName(addr.first_name)
         if (addr.last_name) setLastName(addr.last_name)
         if (addr.address_1) setAddress1(addr.address_1)
         if (addr.city) setCity(addr.city)
-        if (addr.province) setProvince(addr.province)
         if (addr.postal_code) setPostalCode(addr.postal_code)
         if (addr.country_code) setCountryCode(addr.country_code)
         if (addr.phone) setPhone(addr.phone)
@@ -340,30 +325,10 @@ export function CheckoutForm() {
     loadCart()
   }, [loadCart])
 
-  // --- Step Handlers ---
-
-  async function handleEmailSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!cartId || !email) return
-
-    setSubmitting(true)
-    setError(null)
-    try {
-      const { cart: updatedCart } = await sdk.store.cart.update(cartId, {
-        email,
-      })
-      setCart(updatedCart)
-      setStep(2)
-    } catch {
-      setError("Failed to save email. Please try again.")
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  async function handleAddressSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!cartId) return
+  // Save email + address, load shipping options
+  async function handleSaveInfo() {
+    if (!cartId || !email || !firstName || !lastName || !address1 || !city)
+      return
 
     setSubmitting(true)
     setError(null)
@@ -373,41 +338,41 @@ export function CheckoutForm() {
         last_name: lastName,
         address_1: address1,
         city,
-        province,
         postal_code: postalCode,
         country_code: countryCode,
         phone,
       }
 
       const { cart: updatedCart } = await sdk.store.cart.update(cartId, {
+        email,
         shipping_address: shippingAddress,
         billing_address: sameAsBilling ? shippingAddress : undefined,
       })
       setCart(updatedCart)
 
-      // Fetch shipping options
       const { shipping_options } =
         await sdk.store.fulfillment.listCartOptions({ cart_id: cartId })
       setShippingOptions(shipping_options || [])
 
-      setStep(3)
+      setPhase("shipping")
     } catch {
-      setError("Failed to save address. Please try again.")
+      setError("Failed to save information. Please try again.")
     } finally {
       setSubmitting(false)
     }
   }
 
-  async function handleShippingSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!cartId || !selectedShipping) return
+  // Select shipping and initialize payment
+  async function handleSelectShipping(optionId: string) {
+    if (!cartId) return
 
+    setSelectedShipping(optionId)
     setSubmitting(true)
     setError(null)
     try {
       const { cart: updatedCart } = await sdk.store.cart.addShippingMethod(
         cartId,
-        { option_id: selectedShipping }
+        { option_id: optionId }
       )
       setCart(updatedCart)
 
@@ -420,16 +385,13 @@ export function CheckoutForm() {
       const secret =
         payment_collection?.payment_sessions?.[0]?.data
           ?.client_secret as string
-
-      if (secret) {
-        setClientSecret(secret)
-      }
+      if (secret) setClientSecret(secret)
 
       // Re-fetch cart with payment info
       const { cart: refreshedCart } = await sdk.store.cart.retrieve(cartId)
       setCart(refreshedCart)
 
-      setStep(4)
+      setPhase("payment")
     } catch {
       setError("Failed to set up shipping/payment. Please try again.")
     } finally {
@@ -441,399 +403,478 @@ export function CheckoutForm() {
     router.push(`/checkout/confirmation?orderId=${orderId}`)
   }
 
-  // --- Render ---
-
+  // --- Loading State ---
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-brand-gold" />
       </div>
     )
   }
 
+  // --- Empty Cart ---
   if (!cartId || !cart || !cart.items?.length) {
     return (
-      <div className="py-16 text-center">
-        <ShoppingCart className="mx-auto mb-4 h-16 w-16 text-muted-foreground" />
-        <h2 className="mb-4 text-2xl font-bold">Your cart is empty</h2>
-        <p className="mb-8 text-muted-foreground">
+      <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
+        <h2 className="mb-4 font-heading text-2xl font-bold text-foreground">
+          Your cart is empty
+        </h2>
+        <p className="mb-8 font-body text-muted-foreground">
           Add some items before checking out.
         </p>
-        <Button asChild>
+        <Button
+          asChild
+          className="h-14 rounded-none bg-brand-gold px-8 font-body text-sm font-bold uppercase tracking-widest text-background hover:bg-brand-gold/90"
+        >
           <Link href="/artefacts">Browse The Artifacts</Link>
         </Button>
       </div>
     )
   }
 
+  // --- Main Checkout Layout ---
   return (
-    <>
-      <h1 className="mb-2 text-3xl font-bold">Checkout</h1>
-      <StepIndicator currentStep={step} />
+    <div className="flex min-h-screen flex-col lg:flex-row">
+      {/* ====== LEFT — Scrollable Form (Frame 67) ====== */}
+      <div className="flex-1 px-6 pb-20 pt-10 lg:px-20 xl:pl-40 xl:pr-20">
+        {/* Logo */}
+        <div className="flex justify-center pb-8 pt-3">
+          <Link href="/">
+            <Image
+              src="/images/logo.png"
+              alt="Ink2Screen"
+              width={100}
+              height={91}
+              className="object-contain"
+            />
+          </Link>
+        </div>
 
-      <div className="grid gap-8 lg:grid-cols-3">
-        {/* Main Form Area */}
-        <div className="lg:col-span-2">
-          {/* Step 1: Email */}
-          {step === 1 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Mail className="h-5 w-5" />
-                  Contact Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {!isAuthenticated && (
-                  <p className="mb-4 text-sm text-muted-foreground">
-                    Already have an account?{" "}
-                    <Link
-                      href="/login?redirect=checkout"
-                      className="font-medium text-primary hover:underline"
-                    >
-                      Sign in for faster checkout
-                    </Link>
-                  </p>
-                )}
-                {isAuthenticated && customer && (
-                  <p className="mb-4 text-sm text-muted-foreground">
-                    Signed in as{" "}
-                    <span className="font-medium">
-                      {customer.first_name || customer.email}
-                    </span>
-                  </p>
-                )}
-                <form onSubmit={handleEmailSubmit} className="space-y-4">
-                  <div>
-                    <Label htmlFor="email">Email address</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="you@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      autoComplete="email"
-                    />
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      We&apos;ll send your order confirmation here
-                    </p>
-                  </div>
-                  {error && (
-                    <p className="text-sm text-destructive">{error}</p>
-                  )}
-                  <Button type="submit" disabled={submitting || !email}>
-                    {submitting ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : null}
-                    Continue to Address
-                    <ChevronRight className="ml-2 h-4 w-4" />
+        <div className="mx-auto max-w-[520px] space-y-8">
+          {/* --- Express Checkout --- */}
+          <div className="space-y-6">
+            <p className="text-center font-body text-xs font-medium text-foreground">
+              Express checkout
+            </p>
+            <div className="flex gap-4">
+              <button
+                type="button"
+                className="flex h-12 flex-1 items-center justify-center rounded-sm bg-[#ffc439] transition-opacity hover:opacity-90"
+              >
+                {/* PayPal full wordmark logo */}
+                <svg
+                  role="img"
+                  aria-label="PayPal"
+                  viewBox="0 0 101 32"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-auto"
+                >
+                  <path
+                    d="M12.237 4.001H4.718a1.12 1.12 0 0 0-1.104.946L.954 25.564a.67.67 0 0 0 .662.775h3.593a1.12 1.12 0 0 0 1.104-.946l.72-4.568a1.12 1.12 0 0 1 1.104-.946h2.542c5.296 0 8.355-2.564 9.153-7.646.36-2.223.014-3.968-.984-5.19C17.725 5.693 15.375 4.001 12.237 4.001zm.929 7.528c-.44 2.892-2.647 2.892-4.782 2.892H7.181l.851-5.392a.672.672 0 0 1 .663-.567h.549c1.454 0 2.826 0 3.534.828.423.496.552 1.23.388 2.239z"
+                    fill="#003087"
+                  />
+                  <path
+                    d="M35.968 11.432h-3.607a.672.672 0 0 0-.663.567l-.159 1.009-.252-.365c-.782-1.134-2.524-1.514-4.263-1.514-3.988 0-7.393 3.022-8.056 7.261-.345 2.114.145 4.135 1.343 5.546 1.1 1.296 2.672 1.836 4.54 1.836 3.21 0 4.992-2.064 4.992-2.064l-.161 1.001a.67.67 0 0 0 .662.775h3.247a1.12 1.12 0 0 0 1.105-.946l1.947-12.331a.67.67 0 0 0-.675-.775zm-5.03 7.024c-.348 2.06-1.985 3.442-4.076 3.442-1.05 0-1.89-.337-2.43-.975-.535-.633-.737-1.534-.568-2.536.324-2.043 1.989-3.47 4.047-3.47 1.026 0 1.862.34 2.413.984.554.65.773 1.556.614 2.555z"
+                    fill="#003087"
+                  />
+                  <path
+                    d="M55.634 11.432h-3.624a1.12 1.12 0 0 0-.926.49l-5.35 7.876-2.267-7.57a1.12 1.12 0 0 0-1.073-.796h-3.561a.672.672 0 0 0-.636.895l4.273 12.54-4.02 5.672a.67.67 0 0 0 .548 1.058h3.622a1.12 1.12 0 0 0 .92-.48l12.9-18.626a.67.67 0 0 0-.806-1.06z"
+                    fill="#003087"
+                  />
+                  <path
+                    d="M67.737 4.001h-7.519a1.12 1.12 0 0 0-1.104.946l-2.66 16.617a.67.67 0 0 0 .662.775h3.85a.783.783 0 0 0 .773-.662l.755-4.852a1.12 1.12 0 0 1 1.104-.946h2.542c5.296 0 8.355-2.564 9.153-7.646.36-2.223.014-3.968-.984-5.19C73.225 5.693 70.875 4.001 67.737 4.001zm.929 7.528c-.44 2.892-2.647 2.892-4.782 2.892h-1.203l.851-5.392a.672.672 0 0 1 .663-.567h.549c1.454 0 2.826 0 3.534.828.424.496.552 1.23.388 2.239z"
+                    fill="#0070BA"
+                  />
+                  <path
+                    d="M91.468 11.432h-3.607a.672.672 0 0 0-.663.567l-.159 1.009-.252-.365c-.782-1.134-2.524-1.514-4.263-1.514-3.988 0-7.393 3.022-8.056 7.261-.345 2.114.145 4.135 1.343 5.546 1.1 1.296 2.672 1.836 4.54 1.836 3.21 0 4.992-2.064 4.992-2.064l-.161 1.001a.67.67 0 0 0 .662.775h3.247a1.12 1.12 0 0 0 1.105-.946l1.947-12.331a.672.672 0 0 0-.675-.775zm-5.03 7.024c-.348 2.06-1.985 3.442-4.076 3.442-1.05 0-1.89-.337-2.43-.975-.535-.633-.737-1.534-.568-2.536.324-2.043 1.989-3.47 4.047-3.47 1.026 0 1.862.34 2.413.984.554.65.773 1.556.614 2.555z"
+                    fill="#0070BA"
+                  />
+                  <path
+                    d="M95.074 4.535 92.368 25.564a.67.67 0 0 0 .662.775h3.103a1.12 1.12 0 0 0 1.104-.946l2.664-16.617a.67.67 0 0 0-.662-.775h-3.502a.674.674 0 0 0-.663.534z"
+                    fill="#0070BA"
+                  />
+                </svg>
+              </button>
+              <button
+                type="button"
+                className="flex h-12 flex-1 items-center justify-center rounded-sm bg-white transition-opacity hover:opacity-90"
+              >
+                {/* Google Pay full wordmark logo */}
+                <svg
+                  role="img"
+                  aria-label="Google Pay"
+                  viewBox="0 0 120 28"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-auto"
+                >
+                  {/* Google "G" */}
+                  <path
+                    d="M17.337 13.986h-7.31v2.07h5.24c-.26 3.06-2.82 4.37-5.23 4.37a5.77 5.77 0 0 1-5.79-5.87 5.72 5.72 0 0 1 5.79-5.82c2.49 0 4.02 1.59 4.02 1.59l1.45-1.51s-2.09-2.17-5.55-2.17A7.88 7.88 0 0 0 2.05 14.6a7.82 7.82 0 0 0 7.89 7.97c4.15 0 7.56-2.82 7.56-7.72a7.6 7.6 0 0 0-.16-.81z"
+                    fill="#4285F4"
+                  />
+                  <path
+                    d="M24.59 10.45c-3.42 0-5.87 2.68-5.87 5.87 0 3.3 2.38 5.95 5.92 5.95 3.2 0 5.81-2.45 5.81-5.88 0-3.9-3.04-5.94-5.86-5.94zm.05 2.32c1.69 0 3.56 1.36 3.56 3.63 0 2.2-1.87 3.62-3.58 3.62-2.03 0-3.62-1.63-3.62-3.63 0-1.96 1.57-3.62 3.64-3.62z"
+                    fill="#EA4335"
+                  />
+                  <path
+                    d="M40.01 10.45c-3.42 0-5.87 2.68-5.87 5.87 0 3.3 2.38 5.95 5.92 5.95 3.2 0 5.81-2.45 5.81-5.88 0-3.9-3.04-5.94-5.86-5.94zm.05 2.32c1.69 0 3.56 1.36 3.56 3.63 0 2.2-1.87 3.62-3.58 3.62-2.03 0-3.62-1.63-3.62-3.63 0-1.96 1.57-3.62 3.64-3.62z"
+                    fill="#FBBC04"
+                  />
+                  <path
+                    d="M55.18 10.45c-3.15 0-5.67 2.76-5.67 5.9 0 3.57 2.89 5.92 5.62 5.92 1.68 0 2.58-.67 3.24-1.44v1.17c0 2.05-1.24 3.27-3.1 3.27-1.81 0-2.73-1.35-3.04-2.12l-2.03.84c.74 1.57 2.24 3.37 5.09 3.37 3.03 0 5.27-1.91 5.27-5.93V10.78h-2.21v1.03c-.77-.85-1.82-1.36-3.17-1.36zm.23 2.32c1.55 0 3.24 1.33 3.24 3.64 0 2.35-1.68 3.62-3.27 3.62-1.74 0-3.37-1.41-3.37-3.6 0-2.28 1.69-3.66 3.4-3.66z"
+                    fill="#4285F4"
+                  />
+                  <path
+                    d="M72.56 10.45c-3.08 0-5.65 2.45-5.65 5.88 0 3.52 2.72 5.94 5.95 5.94 2.57 0 4.14-1.41 5.08-2.68l-2.09-1.39c-.54.83-1.44 1.74-2.99 1.74-1.72 0-2.5-.94-2.99-1.85l8.23-3.42-.43-1.01c-.8-2.03-2.65-3.21-5.11-3.21zm.1 2.27c1.12 0 1.93.59 2.26 1.31l-5.5 2.3c-.25-1.87 1.46-3.61 3.24-3.61z"
+                    fill="#EA4335"
+                  />
+                  <path
+                    d="M62.88 22h2.31V6.87h-2.31V22z"
+                    fill="#34A853"
+                  />
+                  {/* "Pay" text */}
+                  <path
+                    d="M86.16 6.87h-5.98v15.11h2.32v-5.71h3.67a5.49 5.49 0 0 0 5.47-4.7 5.49 5.49 0 0 0-5.48-4.7zm.08 7.33h-3.74V9.01h3.74a2.86 2.86 0 0 1 2.83 2.6 2.86 2.86 0 0 1-2.83 2.59z"
+                    fill="#3C4043"
+                  />
+                  <path
+                    d="M99.84 10.44c-2.1 0-3.84.95-4.65 2.58l2.06.86c.5-1 1.44-1.34 2.43-1.34a2.5 2.5 0 0 1 2.72 2.12v.17a5.75 5.75 0 0 0-2.72-.68c-2.5 0-5.04 1.37-5.04 3.93a4.03 4.03 0 0 0 4.33 3.84c1.75 0 2.72-.78 3.32-1.7h.09v1.34h2.23v-6.7c0-3.1-2.32-4.42-4.77-4.42zm-.28 9.58c-.86 0-2.06-.43-2.06-1.49 0-1.35 1.49-1.87 2.78-1.87a4.7 4.7 0 0 1 2.38.59 3.17 3.17 0 0 1-3.1 2.77z"
+                    fill="#3C4043"
+                  />
+                  <path
+                    d="M112.13 10.78l-2.65 6.71h-.09l-2.74-6.71h-2.49l4.13 9.39-2.35 5.23h2.42l6.37-14.62h-2.6z"
+                    fill="#3C4043"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* --- OR Divider --- */}
+          <div className="flex items-center gap-4">
+            <Separator className="flex-1 bg-[#333]" />
+            <span className="font-body text-base font-semibold text-foreground">
+              OR
+            </span>
+            <Separator className="flex-1 bg-[#333]" />
+          </div>
+
+          {/* --- Use Your Fan Account --- */}
+          {!isAuthenticated && (
+            <>
+              <div className="space-y-6">
+                <h2 className="font-body text-2xl font-semibold leading-relaxed text-foreground">
+                  Use Your Fan Account
+                </h2>
+                <div className="flex gap-4">
+                  <Button
+                    asChild
+                    className="h-14 flex-1 rounded-none bg-brand-gold font-body text-sm font-bold uppercase tracking-widest text-background hover:bg-brand-gold/90"
+                  >
+                    <Link href="/login?redirect=/checkout">SIGN IN</Link>
                   </Button>
-                </form>
-              </CardContent>
-            </Card>
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="h-14 flex-1 rounded-none border-brand-gold font-body text-sm font-bold uppercase tracking-widest text-brand-gold hover:bg-brand-gold/10"
+                  >
+                    <Link href="/register?redirect=/checkout">REGISTER</Link>
+                  </Button>
+                </div>
+              </div>
+
+              <h2 className="font-body text-2xl font-semibold leading-relaxed text-foreground">
+                Checkout as Guest
+              </h2>
+            </>
           )}
 
-          {/* Step 2: Shipping Address */}
-          {step === 2 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
-                  Shipping Address
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleAddressSubmit} className="space-y-4">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <Label htmlFor="firstName">First name</Label>
-                      <Input
-                        id="firstName"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        required
-                        autoComplete="given-name"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="lastName">Last name</Label>
-                      <Input
-                        id="lastName"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        required
-                        autoComplete="family-name"
-                      />
-                    </div>
-                  </div>
+          {/* --- CONTACT --- */}
+          <div className="space-y-4">
+            <h3 className="font-body text-xl font-semibold text-foreground">
+              Contact
+            </h3>
+            <div className="space-y-2">
+              <CheckoutInput
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                required
+              />
+              <button
+                type="button"
+                className="flex items-center gap-1.5"
+                onClick={() => setEmailOffers(!emailOffers)}
+              >
+                {emailOffers ? (
+                  <CheckSquare className="h-5 w-5 text-brand-gold" />
+                ) : (
+                  <Square className="h-5 w-5 text-muted-foreground" />
+                )}
+                <span className="font-body text-xs font-semibold text-foreground">
+                  Email me with news and offers
+                </span>
+              </button>
+            </div>
+          </div>
 
-                  <div>
-                    <Label htmlFor="address1">Address</Label>
-                    <Input
-                      id="address1"
-                      value={address1}
-                      onChange={(e) => setAddress1(e.target.value)}
-                      required
-                      autoComplete="address-line1"
-                    />
-                  </div>
+          {/* --- DELIVERY --- */}
+          <div className="space-y-4">
+            <h3 className="font-body text-xl font-semibold text-foreground">
+              Delivery
+            </h3>
 
-                  <div className="grid gap-4 sm:grid-cols-3">
-                    <div>
-                      <Label htmlFor="city">City</Label>
-                      <Input
-                        id="city"
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                        required
-                        autoComplete="address-level2"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="province">State / Province</Label>
-                      <Input
-                        id="province"
-                        value={province}
-                        onChange={(e) => setProvince(e.target.value)}
-                        autoComplete="address-level1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="postalCode">ZIP / Postal code</Label>
-                      <Input
-                        id="postalCode"
-                        value={postalCode}
-                        onChange={(e) => setPostalCode(e.target.value)}
-                        required
-                        autoComplete="postal-code"
-                      />
-                    </div>
-                  </div>
+            {/* Country select */}
+            <div className="relative">
+              <select
+                value={countryCode}
+                onChange={(e) => setCountryCode(e.target.value)}
+                className="h-12 w-full appearance-none border border-[#333] bg-transparent pb-1.5 pl-3 pr-10 pt-5 font-body text-sm text-foreground [&>option]:bg-[#121212] [&>option]:text-foreground focus:outline-none focus:ring-1 focus:ring-brand-gold"
+              >
+                <option value="us">United States</option>
+                <option value="ca">Canada</option>
+                <option value="gb">United Kingdom</option>
+                <option value="gh">Ghana</option>
+              </select>
+              <span className="pointer-events-none absolute left-3 top-1.5 font-body text-[10px] text-muted-foreground">
+                Country/Region
+              </span>
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+            </div>
 
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <Label htmlFor="countryCode">Country</Label>
-                      <Input
-                        id="countryCode"
-                        value={countryCode}
-                        onChange={(e) => setCountryCode(e.target.value)}
-                        required
-                        autoComplete="country"
-                        placeholder="us"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="phone">Phone (optional)</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        autoComplete="tel"
-                      />
-                    </div>
-                  </div>
+            {/* Name fields */}
+            <div className="grid grid-cols-2 gap-4">
+              <CheckoutInput
+                placeholder="First name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                autoComplete="given-name"
+                required
+              />
+              <CheckoutInput
+                placeholder="Last name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                autoComplete="family-name"
+                required
+              />
+            </div>
 
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="sameAsBilling"
-                      checked={sameAsBilling}
-                      onChange={(e) => setSameAsBilling(e.target.checked)}
-                      className="h-4 w-4 rounded border-gray-300"
-                    />
-                    <Label htmlFor="sameAsBilling" className="font-normal">
-                      Billing address same as shipping
-                    </Label>
-                  </div>
+            {/* Address */}
+            <CheckoutInput
+              placeholder="Address"
+              value={address1}
+              onChange={(e) => setAddress1(e.target.value)}
+              autoComplete="address-line1"
+              required
+            />
 
-                  {error && (
-                    <p className="text-sm text-destructive">{error}</p>
-                  )}
+            {/* Apartment */}
+            <CheckoutInput
+              placeholder="Apartment, suite, etc. (optional)"
+              value={apartment}
+              onChange={(e) => setApartment(e.target.value)}
+              autoComplete="address-line2"
+            />
 
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setStep(1)}
-                    >
-                      Back
-                    </Button>
-                    <Button
-                      type="submit"
-                      disabled={
-                        submitting ||
-                        !firstName ||
-                        !lastName ||
-                        !address1 ||
-                        !city ||
-                        !postalCode
-                      }
-                    >
-                      {submitting ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : null}
-                      Continue to Shipping
-                      <ChevronRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
+            {/* City + Postal */}
+            <div className="grid grid-cols-2 gap-4">
+              <CheckoutInput
+                placeholder="City"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                autoComplete="address-level2"
+                required
+              />
+              <CheckoutInput
+                placeholder="Postal code (optional)"
+                value={postalCode}
+                onChange={(e) => setPostalCode(e.target.value)}
+                autoComplete="postal-code"
+              />
+            </div>
+
+            {/* Phone */}
+            <div className="space-y-2">
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                <CheckoutInput
+                  placeholder="Phone number"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  autoComplete="tel"
+                  className="pl-10"
+                />
+              </div>
+              <button
+                type="button"
+                className="flex items-center gap-2"
+                onClick={() => setSameAsBilling(!sameAsBilling)}
+              >
+                {sameAsBilling ? (
+                  <CheckSquare className="h-5 w-5 text-brand-gold" />
+                ) : (
+                  <Square className="h-5 w-5 text-muted-foreground" />
+                )}
+                <span className="font-body text-xs font-semibold text-muted-foreground">
+                  Use shipping address as billing address
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* --- Continue to Shipping (info phase) --- */}
+          {phase === "info" && (
+            <Button
+              onClick={handleSaveInfo}
+              disabled={
+                submitting ||
+                !email ||
+                !firstName ||
+                !lastName ||
+                !address1 ||
+                !city
+              }
+              className="h-14 w-full rounded-none bg-brand-gold font-body text-sm font-bold uppercase tracking-widest text-background hover:bg-brand-gold/90"
+            >
+              {submitting ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
+              CONTINUE TO SHIPPING
+            </Button>
           )}
 
-          {/* Step 3: Shipping Method */}
-          {step === 3 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Truck className="h-5 w-5" />
-                  Shipping Method
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleShippingSubmit} className="space-y-4">
-                  {shippingOptions.length > 0 ? (
-                    <RadioGroup
-                      value={selectedShipping}
-                      onValueChange={setSelectedShipping}
-                    >
-                      {shippingOptions.map(
-                        (option: {
-                          id: string
-                          name: string
-                          amount: number
-                        }) => (
-                          <div
-                            key={option.id}
-                            className={`flex items-center gap-3 rounded-lg border p-4 transition-colors ${
-                              selectedShipping === option.id
-                                ? "border-primary bg-primary/5"
-                                : "hover:border-muted-foreground/30"
-                            }`}
-                          >
-                            <RadioGroupItem
-                              value={option.id}
-                              id={option.id}
-                            />
-                            <Label
-                              htmlFor={option.id}
-                              className="flex flex-1 cursor-pointer items-center justify-between font-normal"
-                            >
-                              <span>{option.name}</span>
-                              <span className="font-semibold">
-                                {formatPrice(
-                                  option.amount,
-                                  cart.currency_code
-                                )}
-                              </span>
-                            </Label>
-                          </div>
-                        )
-                      )}
-                    </RadioGroup>
-                  ) : (
-                    <p className="text-muted-foreground">
-                      No shipping options available for your address.
-                    </p>
+          {/* --- SHIPPING METHOD --- */}
+          {(phase === "shipping" || phase === "payment") && (
+            <div className="space-y-2">
+              <h3 className="font-body text-xl font-semibold text-foreground">
+                Shipping method
+              </h3>
+              {shippingOptions.length > 0 ? (
+                <div className="space-y-0">
+                  {shippingOptions.map(
+                    (option: {
+                      id: string
+                      name: string
+                      amount: number
+                    }) => (
+                      <button
+                        key={option.id}
+                        type="button"
+                        onClick={() => {
+                          if (phase === "shipping")
+                            handleSelectShipping(option.id)
+                        }}
+                        disabled={submitting && phase === "shipping"}
+                        className={cn(
+                          "flex h-12 w-full items-center justify-between border border-[#333] px-3 text-left font-body text-xs text-foreground transition-colors",
+                          selectedShipping === option.id
+                            ? "border-foreground bg-[#28292a]"
+                            : "hover:border-foreground/50"
+                        )}
+                      >
+                        <span className="flex-1 pr-4 leading-snug">
+                          {option.name}
+                        </span>
+                        <span className="text-sm font-semibold">
+                          {formatPrice(option.amount, cart.currency_code)}
+                        </span>
+                      </button>
+                    )
                   )}
-
-                  {error && (
-                    <p className="text-sm text-destructive">{error}</p>
-                  )}
-
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setStep(2)}
-                    >
-                      Back
-                    </Button>
-                    <Button
-                      type="submit"
-                      disabled={submitting || !selectedShipping}
-                    >
-                      {submitting ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : null}
-                      Continue to Payment
-                      <ChevronRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
+                </div>
+              ) : (
+                <div className="flex h-12 items-center border border-[#333] bg-[#28292a] px-3">
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin text-muted-foreground" />
+                  <span className="font-body text-xs text-muted-foreground">
+                    Loading shipping options...
+                  </span>
+                </div>
+              )}
+              {submitting && phase === "shipping" && (
+                <div className="flex items-center justify-center py-2">
+                  <Loader2 className="h-5 w-5 animate-spin text-brand-gold" />
+                </div>
+              )}
+            </div>
           )}
 
-          {/* Step 4: Payment */}
-          {step === 4 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="h-5 w-5" />
+          {/* --- PAYMENT --- */}
+          {phase === "payment" && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <h3 className="font-body text-xl font-semibold text-foreground">
                   Payment
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {clientSecret && stripePromise ? (
-                  <Elements
-                    stripe={stripePromise}
-                    options={{
-                      clientSecret,
-                      appearance: {
-                        theme: "stripe",
-                        variables: {
-                          colorPrimary: "#8B5CF6",
+                </h3>
+                <p className="font-body text-xs font-medium text-muted-foreground">
+                  All transactions are secure and encrypted.
+                </p>
+              </div>
+
+              {clientSecret && stripePromise ? (
+                <Elements
+                  stripe={stripePromise}
+                  options={{
+                    clientSecret,
+                    appearance: {
+                      theme: "night",
+                      variables: {
+                        colorPrimary: "#D4AF37",
+                        colorBackground: "#121212",
+                        colorText: "#E0E0E0",
+                        colorDanger: "#ef4444",
+                        fontFamily: "Montserrat, sans-serif",
+                        borderRadius: "0px",
+                      },
+                      rules: {
+                        ".Input": {
+                          border: "1px solid #333",
+                          backgroundColor: "transparent",
+                        },
+                        ".Input:focus": {
+                          border: "1px solid #D4AF37",
+                          boxShadow: "none",
                         },
                       },
-                    }}
-                  >
-                    <StripePaymentForm
-                      cartId={cartId}
-                      clientSecret={clientSecret}
-                      onComplete={handleOrderComplete}
-                    />
-                  </Elements>
-                ) : (
-                  <div className="space-y-4">
-                    <p className="text-muted-foreground">
-                      Payment is not configured yet. Please add your Stripe
-                      keys to enable payment processing.
-                    </p>
-                    <Button
-                      variant="outline"
-                      onClick={() => setStep(3)}
-                    >
-                      Back
-                    </Button>
-                  </div>
-                )}
+                    },
+                  }}
+                >
+                  <StripePaymentForm
+                    cartId={cartId}
+                    clientSecret={clientSecret}
+                    onComplete={handleOrderComplete}
+                    onError={(msg) => setError(msg)}
+                  />
+                </Elements>
+              ) : (
+                <div className="space-y-4">
+                  <p className="font-body text-sm text-muted-foreground">
+                    Payment is not configured yet. Please add your Stripe keys
+                    to enable payment processing.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
-                {clientSecret && (
-                  <Button
-                    variant="outline"
-                    className="mt-4"
-                    onClick={() => setStep(3)}
-                  >
-                    Back
-                  </Button>
-                )}
-
-                {error && (
-                  <p className="mt-4 text-sm text-destructive">{error}</p>
-                )}
-              </CardContent>
-            </Card>
+          {/* Error display */}
+          {error && (
+            <p className="text-center font-body text-sm text-destructive">
+              {error}
+            </p>
           )}
         </div>
+      </div>
 
-        {/* Order Summary Sidebar */}
-        <div className="order-first lg:order-last">
-          <OrderSummary cart={cart} />
+      {/* ====== RIGHT — Sticky Order Summary (Frame 92) ====== */}
+      <div className="border-t border-[#888]/20 bg-card px-6 py-10 lg:sticky lg:top-0 lg:h-screen lg:w-[47%] lg:max-w-[680px] lg:overflow-y-auto lg:border-l lg:border-t-0 lg:px-20 lg:py-20">
+        <div className="mx-auto max-w-[400px]">
+          <OrderSidebar cart={cart} />
         </div>
       </div>
-    </>
+    </div>
   )
 }
