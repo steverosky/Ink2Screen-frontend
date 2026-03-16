@@ -333,7 +333,7 @@ function TheFeedSection() {
             className="h-14 border-brand-gold px-8 text-sm font-bold tracking-widest text-brand-gold hover:bg-brand-gold/10"
           >
             <Link
-              href="https://instagram.com"
+              href="https://instagram.com/ink2screen"
               target="_blank"
               rel="noopener noreferrer"
             >

@@ -3,6 +3,8 @@ import { Cinzel, Montserrat } from "next/font/google"
 import "./globals.css"
 import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
+import { ConsentBanner } from "@/components/consent-banner"
+import { ContentProtection } from "@/components/content-protection"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -49,6 +51,8 @@ export default function RootLayout({
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
+        <ConsentBanner />
+        <ContentProtection />
       </body>
     </html>
   )

@@ -1,7 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { NewsletterSignup } from "@/components/newsletter-signup"
 
 const exploreLinks = [
   { label: "Shop", href: "/artefacts" },
@@ -16,9 +15,11 @@ const legalLinks = [
 ]
 
 const socialLinks = [
-  { label: "YouTube", href: "https://youtube.com" },
-  { label: "Instagram", href: "https://instagram.com" },
-  { label: "Twitter / X", href: "https://x.com" },
+  { label: "Instagram", href: "https://instagram.com/ink2screen" },
+  { label: "TikTok", href: "https://tiktok.com/@ink2screen" },
+  { label: "YouTube", href: "https://youtube.com/@Ink2ScreenLLC" },
+  { label: "YouTube (Galvarino)", href: "https://youtube.com/@GalvarinoChillyTv" },
+  { label: "Twitter / X", href: "https://x.com/Ink2ScreenLLC" },
 ]
 
 export function Footer() {
@@ -94,32 +95,7 @@ export function Footer() {
         </div>
 
         {/* Stay Inspired — Newsletter */}
-        <div className="flex max-w-[415px] flex-col gap-4">
-          <div className="flex flex-col gap-2 py-2.5">
-            <p className="text-sm font-semibold tracking-wide text-[#e0e0e0]">
-              STAY INSPIRED
-            </p>
-            <p className="text-sm font-normal leading-[1.8] text-[#e0e0e0]">
-              Be the first to discover new Ink2Screen books, exclusive
-              collections, and special offers.
-            </p>
-          </div>
-          <div className="flex items-end gap-4">
-            <div className="flex w-80 flex-col gap-1">
-              <label className="text-[11px] font-bold tracking-[0.05em] text-brand-gold">
-                EMAIL
-              </label>
-              <Input
-                type="email"
-                placeholder="you@example.com"
-                className="h-10 rounded-none border-b border-l-0 border-r-0 border-t-0 border-[#333] bg-transparent px-0 text-sm text-[#e0e0e0] placeholder:text-[#555] focus-visible:ring-0 focus-visible:ring-offset-0"
-              />
-            </div>
-            <Button className="h-11 bg-brand-gold px-6 text-sm font-bold tracking-widest text-[#050505] hover:bg-brand-gold-dark">
-              SIGN UP
-            </Button>
-          </div>
-        </div>
+        <NewsletterSignup />
       </div>
 
       {/* Copyright */}

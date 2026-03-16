@@ -80,3 +80,48 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 )
+
+/**
+ * Consent Store
+ * Tracks user consent for cookies, terms, and marketing.
+ * Persisted to localStorage so consent is remembered across sessions.
+ */
+interface ConsentState {
+  cookiesAccepted: boolean
+  termsAccepted: boolean
+  consentTimestamp: string | null
+  acceptAll: () => void
+  acceptEssentialOnly: () => void
+  resetConsent: () => void
+}
+
+export const useConsentStore = create<ConsentState>()(
+  persist(
+    (set) => ({
+      cookiesAccepted: false,
+      termsAccepted: false,
+      consentTimestamp: null,
+      acceptAll: () =>
+        set({
+          cookiesAccepted: true,
+          termsAccepted: true,
+          consentTimestamp: new Date().toISOString(),
+        }),
+      acceptEssentialOnly: () =>
+        set({
+          cookiesAccepted: false,
+          termsAccepted: true,
+          consentTimestamp: new Date().toISOString(),
+        }),
+      resetConsent: () =>
+        set({
+          cookiesAccepted: false,
+          termsAccepted: false,
+          consentTimestamp: null,
+        }),
+    }),
+    {
+      name: "ink2screen-consent",
+    }
+  )
+)

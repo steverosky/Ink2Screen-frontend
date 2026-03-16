@@ -68,6 +68,7 @@ function StripePaymentForm({
   const stripe = useStripe()
   const elements = useElements()
   const [loading, setLoading] = useState(false)
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
   const { clearCart } = useCartStore()
 
   async function handlePlaceOrder() {
@@ -115,10 +116,52 @@ function StripePaymentForm({
     <div className="space-y-6">
       <PaymentElement />
 
+      {/* Terms agreement — required before payment */}
+      <label className="flex cursor-pointer items-start gap-3">
+        <button
+          type="button"
+          onClick={() => setAgreedToTerms(!agreedToTerms)}
+          className="mt-0.5 flex-shrink-0"
+        >
+          {agreedToTerms ? (
+            <CheckSquare className="h-5 w-5 text-brand-gold" />
+          ) : (
+            <Square className="h-5 w-5 text-muted-foreground" />
+          )}
+        </button>
+        <span className="font-body text-xs leading-relaxed text-foreground">
+          I agree to the{" "}
+          <Link
+            href="/terms"
+            target="_blank"
+            className="text-brand-gold underline underline-offset-2 hover:text-brand-gold/80"
+          >
+            Terms &amp; Conditions
+          </Link>
+          ,{" "}
+          <Link
+            href="/terms#privacy"
+            target="_blank"
+            className="text-brand-gold underline underline-offset-2 hover:text-brand-gold/80"
+          >
+            Privacy Policy
+          </Link>
+          , and{" "}
+          <Link
+            href="/terms#marketplace"
+            target="_blank"
+            className="text-brand-gold underline underline-offset-2 hover:text-brand-gold/80"
+          >
+            Marketplace Policy
+          </Link>
+          .
+        </span>
+      </label>
+
       <Button
         onClick={handlePlaceOrder}
-        disabled={!stripe || !elements || loading}
-        className="h-14 w-full rounded-none bg-brand-gold font-body text-sm font-bold uppercase tracking-widest text-background hover:bg-brand-gold/90"
+        disabled={!stripe || !elements || loading || !agreedToTerms}
+        className="h-14 w-full rounded-none bg-brand-gold font-body text-sm font-bold uppercase tracking-widest text-background hover:bg-brand-gold/90 disabled:opacity-40"
       >
         {loading ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />

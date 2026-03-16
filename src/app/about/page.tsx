@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 /* ─── Hero — Mission Statement ─── */
 function HeroSection() {
   return (
-    <section className="relative flex h-[578px] items-center justify-center overflow-hidden bg-[#050505]">
+    <section className="relative flex min-h-[578px] items-center justify-center overflow-hidden bg-[#050505] py-20 md:py-24">
       {/* Library background */}
       <div className="absolute inset-0">
         <Image
@@ -37,24 +37,36 @@ function HeroSection() {
         />
       </div>
 
-      <div className="relative mx-auto flex max-w-[1088px] flex-col items-center gap-8 px-6 text-center">
-        <div className="flex flex-col gap-4">
-          <p className="text-sm font-semibold tracking-[0.1em] text-brand-gold">
+      <div className="relative mx-auto flex max-w-[900px] flex-col items-center gap-6 px-6 text-center md:gap-8">
+        <div className="flex flex-col gap-3">
+          <p className="text-xs font-semibold trackitng-[0.15em] text-brand-gold sm:text-sm">
             OUR MISSION
           </p>
-          <h1 className="font-heading text-5xl font-bold leading-[1.2] tracking-tight text-[#e0e0e0] md:text-[64px]">
+          <h1 className="font-heading text-3xl font-bold leading-[1.2] tracking-tight text-[#e0e0e0] sm:text-4xl md:text-5xl lg:text-[64px]">
             IDEAS INTO INK.
             <br />
             INK INTO IMPACT.
           </h1>
         </div>
 
-        <p className="max-w-[800px] text-xl font-light leading-relaxed text-[#e0e0e0] md:text-2xl md:leading-[1.6]">
-          Raison D&apos;etre is the debut novel from author and engineer
-          Sterling R. Smith. A bold psychological journey developed through
-          Ink2Screen, where powerful stories are built for both readers and
-          future screen adaptation.
-        </p>
+        <div className="flex max-w-[720px] flex-col gap-4 text-base font-light leading-relaxed text-[#e0e0e0] sm:text-lg md:gap-5 md:text-xl md:leading-[1.6]">
+          <p>
+            Ink2Screen was built on a simple conviction: ideas deserve
+            structure.
+          </p>
+          <p>
+            We are a creative publishing and production platform designed to
+            move ideas from concept to execution — from ink to screen, from
+            manuscript to marketplace, from thought to influence.
+          </p>
+          <p>
+            Because stories are not disposable. Because ideas are not
+            accidental. Because impact does not happen by chance.
+          </p>
+          <p className="font-medium">
+            Ink2Screen is where vision becomes structured execution.
+          </p>
+        </div>
       </div>
     </section>
   )
@@ -75,41 +87,53 @@ function EngineerAuthorSection() {
         />
       </div>
 
-      <div className="relative mx-auto flex min-h-[720px] max-w-[1440px] flex-col md:flex-row">
+      <div className="relative mx-auto flex max-w-[1440px] flex-col md:min-h-[720px] md:flex-row">
         {/* Left — Text */}
         <div
           id="author"
-          className="flex w-full flex-col gap-6 px-6 py-16 md:w-1/2 md:px-20 md:py-[70px]"
+          className="flex w-full flex-col gap-4 px-6 py-12 sm:gap-5 md:w-1/2 md:px-12 md:py-[70px] lg:gap-6 lg:px-20"
         >
-          <h2 className="font-heading text-4xl font-bold leading-[1.3] tracking-tight text-[#e0e0e0] md:text-5xl">
-            THE ENGINEER &amp; THE AUTHOR
+          <p className="text-xs font-semibold tracking-[0.15em] text-brand-gold sm:text-sm">
+            THE FOUNDER
+          </p>
+          <h2 className="font-heading text-3xl font-bold leading-[1.3] tracking-tight text-[#e0e0e0] sm:text-4xl md:text-5xl">
+            STERLING R. SMITH
           </h2>
 
-          <div className="flex flex-col gap-6 text-xl font-light leading-relaxed text-[#e0e0e0] md:text-2xl md:leading-[1.6]">
+          <div className="flex flex-col gap-4 text-base font-light leading-relaxed text-[#e0e0e0] sm:text-lg md:gap-5 md:text-xl md:leading-[1.6]">
             <p>
-              Sterling R. Smith represents the intersection of structural
-              precision and narrative fluidity. As an engineer, he understands
-              the architecture of things; as an author, he understands the
-              architecture of the human psyche.
+              Sterling R. Smith founded Ink2Screen from a simple place — he had
+              the idea. He is not driven by trends or reaction. His focus is
+              straightforward: build a successful brand rooted in integrity and
+              long-term influence.
             </p>
             <p>
-              Ink2Screen was founded on a singular premise:{" "}
-              <span className="font-bold">Ownership</span>. To control the
-              narrative, one must own the intellectual property. Sterling leads
-              the studio with a focus on cultivating authors, writers, and
-              burgeoning creatives who want to turn their ideas into lasting
-              cultural legacy.
+              With a professional background in engineering, Sterling approaches
+              creative work with discipline and structure. He believes ideas
+              deserve thoughtful development and intentional execution — not
+              just exposure.
+            </p>
+            <p>
+              High-quality stories — the kind that move communities, elevate
+              perspective, and present people in a stronger light — often
+              struggle to move across mediums. Ink2Screen exists to bridge that
+              gap.
+            </p>
+            <p>
+              He is building a platform centered on publishing, production, and
+              literary events — with integrity at its core and influence as its
+              outcome.
             </p>
           </div>
         </div>
 
         {/* Right — Portrait */}
-        <div className="relative flex h-[600px] w-full items-center justify-center overflow-hidden bg-[#121212] md:h-auto md:w-1/2">
+        <div className="relative flex h-[450px] w-full items-center justify-center overflow-hidden bg-[#121212] sm:h-[550px] md:h-auto md:w-1/2">
           {/* Purple glow (CSS only) */}
-          <div className="absolute left-1/2 top-[45%] h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-purple/25 blur-[150px]" />
+          <div className="absolute left-1/2 top-[45%] h-[350px] w-[350px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-purple/25 blur-[150px] md:h-[500px] md:w-[500px]" />
 
           {/* Portrait */}
-          <div className="relative h-full w-[540px] pt-8">
+          <div className="relative h-full w-full max-w-[540px] pt-8">
             <Image
               src="/images/sterling-portrait.jpg"
               alt="Sterling R. Smith"
@@ -141,6 +165,20 @@ function LiteraryIcon() {
       <line x1="32" y1="18" x2="41" y2="18" stroke="#D4AF37" strokeWidth="1" opacity="0.6" />
       <line x1="32" y1="23" x2="41" y2="23" stroke="#D4AF37" strokeWidth="1" opacity="0.6" />
       <line x1="32" y1="28" x2="41" y2="28" stroke="#D4AF37" strokeWidth="1" opacity="0.6" />
+    </svg>
+  )
+}
+
+function PublishingIcon() {
+  return (
+    <svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Stack of pages / document */}
+      <rect x="10" y="8" width="24" height="32" rx="2" stroke="#D4AF37" strokeWidth="1.5" fill="none" />
+      <rect x="14" y="12" width="24" height="32" rx="2" stroke="#D4AF37" strokeWidth="1.5" fill="none" />
+      {/* Text lines */}
+      <line x1="19" y1="20" x2="33" y2="20" stroke="#D4AF37" strokeWidth="1" opacity="0.6" />
+      <line x1="19" y1="25" x2="33" y2="25" stroke="#D4AF37" strokeWidth="1" opacity="0.6" />
+      <line x1="19" y1="30" x2="28" y2="30" stroke="#D4AF37" strokeWidth="1" opacity="0.6" />
     </svg>
   )
 }
@@ -184,6 +222,12 @@ function CapabilitiesSection() {
       icon: <LiteraryIcon />,
     },
     {
+      title: "PUBLISHING",
+      description:
+        "Developing, protecting, and elevating original works through structured creative execution.",
+      icon: <PublishingIcon />,
+    },
+    {
       title: "SCREEN ADAPTATION",
       description:
         "Translating written narratives into visual scripts and production-ready formats for film and TV.",
@@ -199,9 +243,9 @@ function CapabilitiesSection() {
   ]
 
   return (
-    <section className="bg-[#050505] px-6 py-20">
+    <section className="bg-[#050505] px-6 py-16 md:py-20">
       <div className="mx-auto flex max-w-[1280px] flex-col items-center gap-8">
-        <h2 className="text-center font-heading text-5xl font-bold leading-[1.2] tracking-tight text-[#e0e0e0] md:text-[64px]">
+        <h2 className="text-center font-heading text-3xl font-bold leading-[1.2] tracking-tight text-[#e0e0e0] sm:text-4xl md:text-5xl lg:text-[64px]">
           OUR CAPABILITIES
         </h2>
 
@@ -209,7 +253,7 @@ function CapabilitiesSection() {
           {/* Top row — 2 cards */}
           <div className="flex flex-col gap-6 md:flex-row">
             {/* Literary Development — wider */}
-            <div className="group relative h-[262px] overflow-hidden rounded-[10px] bg-[#28292a] md:w-[60%]">
+            <div className="group relative min-h-[220px] overflow-hidden rounded-[10px] bg-[#28292a] md:min-h-[262px] md:w-[60%]">
               <div className="absolute inset-0">
                 <Image
                   src="/images/hero-bg-texture.jpg"
@@ -232,20 +276,20 @@ function CapabilitiesSection() {
               </div>
             </div>
 
-            {/* Screen Adaptation — highlighted purple */}
-            <div className="group relative h-[262px] overflow-hidden rounded-[10px] bg-[#240046] md:flex-1">
+            {/* Publishing */}
+            <div className="group relative min-h-[220px] overflow-hidden rounded-[10px] bg-[#28292a] md:min-h-[262px] md:flex-1">
               <div className="absolute inset-0">
                 <Image
                   src="/images/hero-bg-texture.jpg"
                   alt=""
                   fill
                   sizes="(max-width: 768px) 100vw, 40vw"
-                  className="object-cover opacity-15 mix-blend-soft-light"
+                  className="object-cover opacity-10 mix-blend-soft-light"
                 />
               </div>
               <div className="relative flex h-full flex-col justify-between p-8">
                 <div className="flex items-center gap-5">
-                  <p className="flex-1 text-sm font-medium leading-relaxed text-[#f0f0f0]">
+                  <p className="flex-1 text-sm font-medium leading-relaxed text-[#888]">
                     {capabilities[1].description}
                   </p>
                   {capabilities[1].icon}
@@ -257,27 +301,54 @@ function CapabilitiesSection() {
             </div>
           </div>
 
-          {/* Bottom row — full width */}
-          <div className="group relative h-[262px] overflow-hidden rounded-[10px] bg-[#28292a]">
-            <div className="absolute inset-0">
-              <Image
-                src="/images/hero-bg-texture.jpg"
-                alt=""
-                fill
-                sizes="100vw"
-                className="object-cover opacity-10 mix-blend-soft-light"
-              />
-            </div>
-            <div className="relative flex h-full flex-col justify-between p-8">
-              <div className="flex items-center gap-5">
-                <p className="flex-1 text-sm font-medium leading-relaxed text-[#888]">
-                  {capabilities[2].description}
-                </p>
-                {capabilities[2].icon}
+          {/* Bottom row — 2 cards */}
+          <div className="flex flex-col gap-6 md:flex-row">
+            {/* Screen Adaptation — highlighted purple */}
+            <div className="group relative min-h-[220px] overflow-hidden rounded-[10px] bg-[#240046] md:min-h-[262px] md:flex-1">
+              <div className="absolute inset-0">
+                <Image
+                  src="/images/hero-bg-texture.jpg"
+                  alt=""
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover opacity-15 mix-blend-soft-light"
+                />
               </div>
-              <p className="font-heading text-2xl font-bold leading-[1.4] tracking-tight text-[#e0e0e0]">
-                {capabilities[2].title}
-              </p>
+              <div className="relative flex h-full flex-col justify-between p-8">
+                <div className="flex items-center gap-5">
+                  <p className="flex-1 text-sm font-medium leading-relaxed text-[#f0f0f0]">
+                    {capabilities[2].description}
+                  </p>
+                  {capabilities[2].icon}
+                </div>
+                <p className="font-heading text-2xl font-bold leading-[1.4] tracking-tight text-[#e0e0e0]">
+                  {capabilities[2].title}
+                </p>
+              </div>
+            </div>
+
+            {/* Events & Experiences */}
+            <div className="group relative min-h-[220px] overflow-hidden rounded-[10px] bg-[#28292a] md:min-h-[262px] md:flex-1">
+              <div className="absolute inset-0">
+                <Image
+                  src="/images/hero-bg-texture.jpg"
+                  alt=""
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover opacity-10 mix-blend-soft-light"
+                />
+              </div>
+              <div className="relative flex h-full flex-col justify-between p-8">
+                <div className="flex items-center gap-5">
+                  <p className="flex-1 text-sm font-medium leading-relaxed text-[#888]">
+                    {capabilities[3].description}
+                  </p>
+                  {capabilities[3].icon}
+                </div>
+                <p className="font-heading text-2xl font-bold leading-[1.4] tracking-tight text-[#e0e0e0]">
+                  {capabilities[3].title}
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -315,7 +386,7 @@ function ExperienceCTASection() {
       </div>
 
       <div className="relative mx-auto flex max-w-[1088px] flex-col items-center gap-6 px-6 py-16">
-        <h2 className="text-center font-heading text-5xl font-bold leading-[1.2] tracking-tight text-[#e0e0e0] md:text-[64px]">
+        <h2 className="text-center font-heading text-3xl font-bold leading-[1.2] tracking-tight text-[#e0e0e0] sm:text-4xl md:text-5xl lg:text-[64px]">
           EXPERIENCE THE NARRATIVE
         </h2>
 
