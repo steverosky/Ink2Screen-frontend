@@ -315,7 +315,10 @@ function CalendarSection() {
 /* ─── CTA ─── */
 function CTASection() {
   return (
-    <section className="relative flex min-h-[350px] items-center justify-center overflow-hidden bg-[#240046]">
+    <section className="relative flex min-h-[350px] items-center justify-center overflow-hidden">
+      {/* Purple radial glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(46,0,78,0.4)_0%,transparent_70%)]" />
+      {/* Grain texture */}
       <div className="absolute inset-0">
         <Image
           src="/images/hero-bg-texture.jpg"
