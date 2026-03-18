@@ -3,6 +3,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Mail, MapPin, Instagram, Youtube, Twitter } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { getContent, cms } from "@/lib/cms"
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -10,55 +11,59 @@ export const metadata: Metadata = {
     "Get in touch with Ink2Screen LLC Publishing — inquiries, partnerships, and event collaborations.",
 }
 
-const EMAIL = "Ink2screenllc@gmail.com"
+type ContentMap = Record<string, Record<string, Record<string, string>>>
 
-const socialLinks = [
-  {
-    label: "Instagram",
-    handle: "@Ink2Screen",
-    href: "https://instagram.com/ink2screen",
-    icon: Instagram,
-  },
-  {
-    label: "TikTok",
-    handle: "@Ink2Screen",
-    href: "https://tiktok.com/@ink2screen",
-    icon: () => (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="h-5 w-5"
-      >
-        <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
-      </svg>
-    ),
-  },
-  {
-    label: "YouTube — Ink2Screen",
-    handle: "@Ink2ScreenLLC",
-    href: "https://youtube.com/@Ink2ScreenLLC",
-    icon: Youtube,
-  },
-  {
-    label: "YouTube — Founder's Personal",
-    handle: "@GalvarinoChillyTv",
-    href: "https://youtube.com/@GalvarinoChillyTv",
-    icon: Youtube,
-  },
-  {
-    label: "Twitter / X",
-    handle: "@Ink2ScreenLLC",
-    href: "https://x.com/Ink2ScreenLLC",
-    icon: Twitter,
-  },
-]
+const DEFAULT_EMAIL = "Ink2screenllc@gmail.com"
+
+function getSocialLinks(c: ContentMap) {
+  return [
+    {
+      label: "Instagram",
+      handle: "@Ink2Screen",
+      href: cms(c, "global", "social", "instagram_url", "https://instagram.com/ink2screen"),
+      icon: Instagram,
+    },
+    {
+      label: "TikTok",
+      handle: "@Ink2Screen",
+      href: cms(c, "global", "social", "tiktok_url", "https://tiktok.com/@ink2screen"),
+      icon: () => (
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="h-5 w-5"
+        >
+          <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+        </svg>
+      ),
+    },
+    {
+      label: "YouTube — Ink2Screen",
+      handle: "@Ink2ScreenLLC",
+      href: cms(c, "global", "social", "youtube_url", "https://youtube.com/@Ink2ScreenLLC"),
+      icon: Youtube,
+    },
+    {
+      label: "YouTube — Founder's Personal",
+      handle: "@GalvarinoChillyTv",
+      href: cms(c, "global", "social", "youtube_galvarino_url", "https://youtube.com/@GalvarinoChillyTv"),
+      icon: Youtube,
+    },
+    {
+      label: "Twitter / X",
+      handle: "@Ink2ScreenLLC",
+      href: cms(c, "global", "social", "twitter_url", "https://x.com/Ink2ScreenLLC"),
+      icon: Twitter,
+    },
+  ]
+}
 
 /* ─── Hero ─── */
-function HeroSection() {
+function HeroSection({ c }: { c: ContentMap }) {
   return (
     <section className="relative flex min-h-[480px] items-center justify-center overflow-hidden bg-[#050505] py-20 md:py-24">
       <div className="absolute inset-0">
@@ -83,14 +88,13 @@ function HeroSection() {
 
       <div className="relative mx-auto flex max-w-[900px] flex-col items-center gap-6 px-6 text-center">
         <p className="text-xs font-semibold tracking-[0.15em] text-brand-gold sm:text-sm">
-          GET IN TOUCH
+          {cms(c, "contact", "hero", "label", "GET IN TOUCH")}
         </p>
         <h1 className="font-heading text-3xl font-bold leading-[1.2] tracking-tight text-[#e0e0e0] sm:text-4xl md:text-5xl lg:text-[64px]">
-          LET&apos;S CONNECT
+          {cms(c, "contact", "hero", "headline", "LET'S CONNECT")}
         </h1>
         <p className="max-w-[600px] text-base font-light leading-relaxed text-[#e0e0e0] sm:text-lg md:text-xl">
-          Inquiries, partnerships, event collaborations, or just a conversation
-          about great storytelling.
+          {cms(c, "contact", "hero", "description", "Inquiries, partnerships, event collaborations, or just a conversation about great storytelling.")}
         </p>
       </div>
     </section>
@@ -98,7 +102,8 @@ function HeroSection() {
 }
 
 /* ─── Email CTA ─── */
-function EmailSection() {
+function EmailSection({ c }: { c: ContentMap }) {
+  const email = cms(c, "contact", "email", "address", DEFAULT_EMAIL)
   return (
     <section className="relative overflow-hidden bg-[#050505] px-6 py-16 md:py-20">
       {/* Section-level grain */}
@@ -133,7 +138,7 @@ function EmailSection() {
 
             <div className="flex flex-col gap-3">
               <h2 className="font-heading text-2xl font-bold tracking-tight text-[#e0e0e0] md:text-3xl">
-                SEND US A MESSAGE
+                {cms(c, "contact", "email", "title", "SEND US A MESSAGE")}
               </h2>
               <p className="max-w-[500px] text-sm font-light leading-relaxed text-[#999] md:text-base">
                 For business inquiries, press, partnerships, event
@@ -145,10 +150,10 @@ function EmailSection() {
               asChild
               className="h-14 bg-brand-gold px-10 text-sm font-bold tracking-widest text-[#050505] hover:bg-brand-gold-dark"
             >
-              <a href={`mailto:${EMAIL}`}>EMAIL US</a>
+              <a href={`mailto:${email}`}>EMAIL US</a>
             </Button>
 
-            <p className="text-xs text-[#666]">{EMAIL}</p>
+            <p className="text-xs text-[#666]">{email}</p>
           </div>
         </div>
       </div>
@@ -157,7 +162,8 @@ function EmailSection() {
 }
 
 /* ─── Info Cards ─── */
-function InfoCardsSection() {
+function InfoCardsSection({ c }: { c: ContentMap }) {
+  const EMAIL = cms(c, "contact", "email", "address", DEFAULT_EMAIL)
   return (
     <section className="relative overflow-hidden bg-[#0a0a0a] px-6 py-16 md:py-20">
       <div className="absolute inset-0">
@@ -266,7 +272,8 @@ function InfoCardsSection() {
 }
 
 /* ─── Social Section ─── */
-function SocialSection() {
+function SocialSection({ c }: { c: ContentMap }) {
+  const socialLinks = getSocialLinks(c)
   return (
     <section className="relative overflow-hidden bg-[#050505] px-6 py-16 md:py-20">
       <div className="absolute inset-0">
@@ -330,7 +337,7 @@ function SocialSection() {
 }
 
 /* ─── Location ─── */
-function LocationSection() {
+function LocationSection({ c }: { c: ContentMap }) {
   return (
     <section className="relative flex min-h-[300px] items-center justify-center overflow-hidden">
       {/* Purple radial glow */}
@@ -349,11 +356,10 @@ function LocationSection() {
       <div className="relative mx-auto flex max-w-[800px] flex-col items-center gap-6 px-6 py-16 text-center">
         <MapPin className="h-8 w-8 text-brand-gold" />
         <h2 className="font-heading text-2xl font-bold tracking-tight text-[#e0e0e0] md:text-3xl">
-          HOUSTON, TEXAS
+          {cms(c, "contact", "location", "heading", "HOUSTON, TEXAS")}
         </h2>
         <p className="max-w-[500px] text-base font-light leading-relaxed text-[#e0e0e0]">
-          Ink2Screen is rooted in Houston. Our events, signings, and
-          experiences are centered in the heart of Texas.
+          {cms(c, "contact", "location", "description", "Ink2Screen is rooted in Houston. Our events, signings, and experiences are centered in the heart of Texas.")}
         </p>
         <Button
           asChild
@@ -368,14 +374,16 @@ function LocationSection() {
 }
 
 /* ─── Page ─── */
-export default function ContactPage() {
+export default async function ContactPage() {
+  const c = await getContent()
+
   return (
     <div className="bg-[#050505]">
-      <HeroSection />
-      <EmailSection />
-      <InfoCardsSection />
-      <SocialSection />
-      <LocationSection />
+      <HeroSection c={c} />
+      <EmailSection c={c} />
+      <InfoCardsSection c={c} />
+      <SocialSection c={c} />
+      <LocationSection c={c} />
     </div>
   )
 }

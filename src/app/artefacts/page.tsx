@@ -3,6 +3,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { sdk, getDefaultRegionId } from "@/lib/sdk"
 import { WishlistButton } from "@/components/wishlist-button"
+import { getContent, cms } from "@/lib/cms"
 
 export const metadata: Metadata = {
   title: "The Artifacts",
@@ -33,7 +34,7 @@ async function getProducts() {
 }
 
 /* ─── Hero ─── */
-function HeroSection() {
+function HeroSection({ c }: { c: Record<string, Record<string, Record<string, string>>> }) {
   return (
     <section className="relative flex h-[400px] items-center justify-center overflow-hidden">
       {/* Texture overlay */}
@@ -49,10 +50,10 @@ function HeroSection() {
 
       <div className="relative mx-auto flex max-w-[1088px] flex-col items-center gap-8 px-6 text-center">
         <h1 className="font-heading text-5xl font-bold leading-[1.2] tracking-tight text-[#e0e0e0] md:text-[64px]">
-          THE COLLECTION
+          {cms(c, "artefacts", "hero", "title", "THE COLLECTION")}
         </h1>
         <p className="max-w-[800px] text-xl font-light leading-relaxed text-brand-gold md:text-2xl md:leading-[1.6]">
-          Limited editions, narratives, and curated goods.
+          {cms(c, "artefacts", "hero", "subtitle", "Limited editions, narratives, and curated goods.")}
         </p>
       </div>
     </section>
@@ -154,11 +155,11 @@ function ProductGridSection({ products }: { products: any[] }) {
 
 /* ─── Artefacts Page ─── */
 export default async function ArtefactsPage() {
-  const products = await getProducts()
+  const [products, c] = await Promise.all([getProducts(), getContent("artefacts")])
 
   return (
     <div className="bg-[#050505]">
-      <HeroSection />
+      <HeroSection c={c} />
       <ProductGridSection products={products} />
       {/* Spacer before footer */}
       <div className="h-24" />

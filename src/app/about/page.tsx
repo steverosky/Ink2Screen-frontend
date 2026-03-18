@@ -3,6 +3,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Testimonials } from "@/components/testimonials"
+import { getContent, cms } from "@/lib/cms"
 
 export const metadata: Metadata = {
   title: "About",
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 }
 
 /* ─── Hero — Mission Statement ─── */
-function HeroSection() {
+function HeroSection({ c }: { c: Record<string, Record<string, Record<string, string>>> }) {
   return (
     <section className="relative flex min-h-[578px] items-center justify-center overflow-hidden bg-[#050505] py-20 md:py-24">
       {/* Library background */}
@@ -40,12 +41,10 @@ function HeroSection() {
       <div className="relative mx-auto flex max-w-[900px] flex-col items-center gap-6 px-6 text-center md:gap-8">
         <div className="flex flex-col gap-3">
           <p className="text-xs font-semibold trackitng-[0.15em] text-brand-gold sm:text-sm">
-            OUR MISSION
+            {cms(c, "about", "hero", "label", "OUR MISSION")}
           </p>
           <h1 className="font-heading text-3xl font-bold leading-[1.2] tracking-tight text-[#e0e0e0] sm:text-4xl md:text-5xl lg:text-[64px]">
-            IDEAS INTO INK.
-            <br />
-            INK INTO IMPACT.
+            {cms(c, "about", "hero", "headline", "IDEAS INTO INK. INK INTO IMPACT.")}
           </h1>
         </div>
 
@@ -73,7 +72,7 @@ function HeroSection() {
 }
 
 /* ─── The Engineer & The Author ─── */
-function EngineerAuthorSection() {
+function EngineerAuthorSection({ c }: { c: Record<string, Record<string, Record<string, string>>> }) {
   return (
     <section className="relative overflow-hidden bg-[#121212]">
       {/* Background texture */}
@@ -94,10 +93,10 @@ function EngineerAuthorSection() {
           className="flex w-full flex-col gap-4 px-6 py-12 sm:gap-5 md:w-1/2 md:px-12 md:py-[70px] lg:gap-6 lg:px-20"
         >
           <p className="text-xs font-semibold tracking-[0.15em] text-brand-gold sm:text-sm">
-            THE FOUNDER
+            {cms(c, "about", "founder", "label", "THE FOUNDER")}
           </p>
           <h2 className="font-heading text-3xl font-bold leading-[1.3] tracking-tight text-[#e0e0e0] sm:text-4xl md:text-5xl">
-            STERLING R. SMITH
+            {cms(c, "about", "founder", "name", "STERLING R. SMITH")}
           </h2>
 
           <div className="flex flex-col gap-4 text-base font-light leading-relaxed text-[#e0e0e0] sm:text-lg md:gap-5 md:text-xl md:leading-[1.6]">
@@ -213,31 +212,27 @@ function EventsIcon() {
 }
 
 /* ─── Our Capabilities ─── */
-function CapabilitiesSection() {
+function CapabilitiesSection({ c }: { c: Record<string, Record<string, Record<string, string>>> }) {
   const capabilities = [
     {
-      title: "LITERARY DEVELOPMENT",
-      description:
-        "From manuscript refinement to global distribution. We treat books as the foundation of IP.",
+      title: cms(c, "about", "capabilities", "card_1_title", "LITERARY DEVELOPMENT"),
+      description: cms(c, "about", "capabilities", "card_1_description", "From manuscript refinement to global distribution. We treat books as the foundation of IP."),
       icon: <LiteraryIcon />,
     },
     {
-      title: "PUBLISHING",
-      description:
-        "Developing, protecting, and elevating original works through structured creative execution.",
+      title: cms(c, "about", "capabilities", "card_2_title", "PUBLISHING"),
+      description: cms(c, "about", "capabilities", "card_2_description", "Developing, protecting, and elevating original works through structured creative execution."),
       icon: <PublishingIcon />,
     },
     {
-      title: "SCREEN ADAPTATION",
-      description:
-        "Translating written narratives into visual scripts and production-ready formats for film and TV.",
+      title: cms(c, "about", "capabilities", "card_3_title", "SCREEN ADAPTATION"),
+      description: cms(c, "about", "capabilities", "card_3_description", "Translating written narratives into visual scripts and production-ready formats for film and TV."),
       icon: <ScreenIcon />,
       highlighted: true,
     },
     {
-      title: "EVENTS & EXPERIENCES",
-      description:
-        "Live engagements, book signings, and the Ink & Indulgence series.",
+      title: cms(c, "about", "capabilities", "card_4_title", "EVENTS & EXPERIENCES"),
+      description: cms(c, "about", "capabilities", "card_4_description", "Live engagements, book signings, and the Ink & Indulgence series."),
       icon: <EventsIcon />,
     },
   ]
@@ -246,7 +241,7 @@ function CapabilitiesSection() {
     <section className="bg-[#050505] px-6 py-16 md:py-20">
       <div className="mx-auto flex max-w-[1280px] flex-col items-center gap-8">
         <h2 className="text-center font-heading text-3xl font-bold leading-[1.2] tracking-tight text-[#e0e0e0] sm:text-4xl md:text-5xl lg:text-[64px]">
-          OUR CAPABILITIES
+          {cms(c, "about", "capabilities", "title", "OUR CAPABILITIES")}
         </h2>
 
         <div className="flex w-full flex-col gap-6">
@@ -360,7 +355,7 @@ function CapabilitiesSection() {
 /* ─── Testimonials ─── (uses shared Testimonials component) */
 
 /* ─── Experience the Narrative CTA ─── */
-function ExperienceCTASection() {
+function ExperienceCTASection({ c }: { c: Record<string, Record<string, Record<string, string>>> }) {
   return (
     <section className="relative flex min-h-[453px] items-center justify-center overflow-hidden bg-[#240046]">
       {/* Background image */}
@@ -387,7 +382,7 @@ function ExperienceCTASection() {
 
       <div className="relative mx-auto flex max-w-[1088px] flex-col items-center gap-6 px-6 py-16">
         <h2 className="text-center font-heading text-3xl font-bold leading-[1.2] tracking-tight text-[#e0e0e0] sm:text-4xl md:text-5xl lg:text-[64px]">
-          EXPERIENCE THE NARRATIVE
+          {cms(c, "about", "cta", "title", "EXPERIENCE THE NARRATIVE")}
         </h2>
 
         <div className="flex flex-col items-center gap-4">
@@ -395,14 +390,14 @@ function ExperienceCTASection() {
             asChild
             className="h-14 bg-brand-gold px-8 text-sm font-bold tracking-widest text-[#050505] hover:bg-brand-gold-dark"
           >
-            <Link href="/artefacts">VISIT THE ARTIFACTS</Link>
+            <Link href="/artefacts">{cms(c, "about", "cta", "cta_primary_text", "VISIT THE ARTIFACTS")}</Link>
           </Button>
           <Button
             asChild
             variant="outline"
             className="h-14 border-brand-gold px-8 text-sm font-bold tracking-widest text-brand-gold hover:bg-brand-gold/10"
           >
-            <Link href="/contact">START A PROJECT</Link>
+            <Link href="/contact">{cms(c, "about", "cta", "cta_secondary_text", "START A PROJECT")}</Link>
           </Button>
         </div>
       </div>
@@ -411,14 +406,16 @@ function ExperienceCTASection() {
 }
 
 /* ─── About Page ─── */
-export default function AboutPage() {
+export default async function AboutPage() {
+  const c = await getContent("about")
+
   return (
     <div className="bg-[#050505]">
-      <HeroSection />
-      <EngineerAuthorSection />
-      <CapabilitiesSection />
+      <HeroSection c={c} />
+      <EngineerAuthorSection c={c} />
+      <CapabilitiesSection c={c} />
       <Testimonials />
-      <ExperienceCTASection />
+      <ExperienceCTASection c={c} />
     </div>
   )
 }

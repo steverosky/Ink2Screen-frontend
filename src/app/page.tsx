@@ -2,9 +2,28 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { getContent } from "@/lib/cms"
 
 /* ─── Hero Section ─── */
-function HeroSection() {
+function HeroSection({
+  c,
+}: {
+  c: Record<string, Record<string, string>>
+}) {
+  const hero = c.hero || {}
+
+  const superscript = hero.superscript || "INK2SCREEN PRESENTS"
+  const description =
+    hero.description ||
+    "Raison D'etre is the debut novel from author and engineer Sterling R. Smith. A bold psychological journey developed through Ink2Screen, where powerful stories are built for both readers and future screen adaptation."
+  const cta_primary_text = hero.cta_primary_text || "GET THIS BOOK"
+  const cta_primary_link = hero.cta_primary_link || "/artefacts"
+  const cta_secondary_text = hero.cta_secondary_text || "WORK WITH INK2SCREEN"
+  const cta_secondary_link = hero.cta_secondary_link || "/about"
+  const footer_text =
+    hero.footer_text ||
+    "DEBUT NOVEL: RAISON D'ETRE  |  CREATED BY INK2SCREEN  |  STORIES ENGINEERED"
+
   return (
     <section className="relative h-[720px] overflow-hidden">
       {/* Background texture overlay */}
@@ -26,7 +45,7 @@ function HeroSection() {
         <div className="flex w-full flex-col gap-6 px-6 lg:w-1/2 lg:px-20">
           <div className="flex flex-col gap-2">
             <p className="text-sm font-semibold tracking-[0.1em] text-brand-gold">
-              INK2SCREEN PRESENTS
+              {superscript}
             </p>
             <h1 className="font-heading text-4xl font-bold leading-[1.3] tracking-tight text-[#e0e0e0] md:text-5xl">
               EVERY STORY HAS A PURPOSE.
@@ -40,10 +59,7 @@ function HeroSection() {
           </div>
 
           <p className="text-lg font-light leading-relaxed text-[#e0e0e0] md:text-2xl md:leading-[1.6]">
-            Raison D&apos;etre is the debut novel from author and engineer{" "}
-            <span className="font-bold">Sterling R. Smith</span>. A bold
-            psychological journey developed through Ink2Screen, where powerful
-            stories are built for both readers and future screen adaptation.
+            {description}
           </p>
 
           <div className="flex gap-4">
@@ -51,20 +67,19 @@ function HeroSection() {
               asChild
               className="h-14 bg-brand-gold px-8 text-sm font-bold tracking-widest text-[#050505] hover:bg-brand-gold-dark"
             >
-              <Link href="/artefacts">GET THIS BOOK</Link>
+              <Link href={cta_primary_link}>{cta_primary_text}</Link>
             </Button>
             <Button
               asChild
               variant="outline"
               className="h-14 border-brand-gold px-8 text-sm font-bold tracking-widest text-brand-gold hover:bg-brand-gold/10"
             >
-              <Link href="/about">WORK WITH INK2SCREEN</Link>
+              <Link href={cta_secondary_link}>{cta_secondary_text}</Link>
             </Button>
           </div>
 
           <p className="text-[11px] font-bold tracking-[0.05em] text-[#e0e0e0]">
-            DEBUT NOVEL: RAISON D&apos;ETRE &nbsp;|&nbsp; CREATED BY INK2SCREEN
-            &nbsp;|&nbsp; STORIES ENGINEERED
+            {footer_text}
           </p>
         </div>
 
@@ -103,21 +118,32 @@ function HeroSection() {
 }
 
 /* ─── Engineering Narratives Section ─── */
-function EngineeringNarrativesSection() {
+function EngineeringNarrativesSection({
+  c,
+}: {
+  c: Record<string, Record<string, string>>
+}) {
+  const n = c.narratives || {}
+
+  const sectionTitle = n.title || "ENGINEERING NARRATIVES"
+
   const pillars = [
     {
-      title: "ORIGINAL CONCEPTS",
+      title: n.pillar_1_title || "ORIGINAL CONCEPTS",
       description:
+        n.pillar_1_description ||
         'Developing bold psychological journeys and character-driven IP from the ground up."',
     },
     {
-      title: "SCREEN ADAPTATION",
+      title: n.pillar_2_title || "SCREEN ADAPTATION",
       description:
+        n.pillar_2_description ||
         "Structuring written works for visual translation. We build stories that demand to be seen.",
     },
     {
-      title: "CULTURAL IMPACT",
+      title: n.pillar_3_title || "CULTURAL IMPACT",
       description:
+        n.pillar_3_description ||
         "Curating experiences that extend the story beyond the page into real-world connection.",
     },
   ]
@@ -126,10 +152,10 @@ function EngineeringNarrativesSection() {
     <section className="flex h-[400px] items-center justify-center px-6">
       <div className="mx-auto flex max-w-[1088px] flex-col items-center gap-8">
         <h2 className="text-center font-heading text-4xl font-bold leading-[1.3] tracking-tight text-brand-gold md:text-5xl">
-          ENGINEERING NARRATIVES
+          {sectionTitle}
         </h2>
         <div className="flex w-full flex-col items-center gap-8 md:flex-row md:gap-8">
-          {pillars.map((pillar, i) => (
+          {pillars.map((pillar) => (
             <div key={pillar.title} className="flex items-center gap-8">
               <div className="flex w-80 flex-col gap-2 text-center">
                 <p className="text-sm font-semibold tracking-[0.1em] text-[#f0f0f0]">
@@ -148,7 +174,22 @@ function EngineeringNarrativesSection() {
 }
 
 /* ─── Book Spotlight (Raison D'être) Section ─── */
-function BookSpotlightSection() {
+function BookSpotlightSection({
+  c,
+}: {
+  c: Record<string, Record<string, string>>
+}) {
+  const s = c.spotlight || {}
+
+  const label = s.label || "NOW AVAILABLE"
+  const title = s.title || "RAISON D'ETRE"
+  const tagline = s.tagline || "Every psyche has a breaking point."
+  const description =
+    s.description ||
+    "A psychological deep dive into the human condition. Sterling R. Smith's debut novel challenges the boundaries of purpose and existence. Available in Hardcover and Digital formats."
+  const cta_primary_text = s.cta_primary_text || "ORDER HARDCOVER"
+  const cta_secondary_text = s.cta_secondary_text || "READ THE FIRST CHAPTER"
+
   return (
     <section className="relative overflow-hidden bg-[#121212]">
       {/* Background texture */}
@@ -166,21 +207,19 @@ function BookSpotlightSection() {
         <div className="flex w-full flex-col justify-center gap-6 px-6 py-16 md:w-1/2 md:px-20">
           <div className="flex flex-col gap-2">
             <p className="text-sm font-semibold tracking-[0.1em] text-brand-gold">
-              NOW AVAILABLE
+              {label}
             </p>
             <h2 className="font-heading text-4xl font-bold leading-[1.3] tracking-tight text-white md:text-5xl">
-              RAISON D&apos;ETRE
+              {title}
             </h2>
           </div>
 
           <p className="text-2xl font-light leading-relaxed text-[#e0e0e0]">
-            Every psyche has a breaking point.
+            {tagline}
           </p>
 
           <p className="text-base font-normal leading-[1.7] text-[#888]">
-            A psychological deep dive into the human condition. Sterling R.
-            Smith&apos;s debut novel challenges the boundaries of purpose and
-            existence. Available in Hardcover and Digital formats.
+            {description}
           </p>
 
           <div className="flex gap-4">
@@ -188,14 +227,14 @@ function BookSpotlightSection() {
               asChild
               className="h-14 bg-brand-gold px-8 text-sm font-bold tracking-widest text-[#050505] hover:bg-brand-gold-dark"
             >
-              <Link href="/artefacts">ORDER HARDCOVER</Link>
+              <Link href="/artefacts">{cta_primary_text}</Link>
             </Button>
             <Button
               asChild
               variant="outline"
               className="h-14 border-brand-gold px-8 text-sm font-bold tracking-widest text-brand-gold hover:bg-brand-gold/10"
             >
-              <Link href="/artefacts">READ THE FIRST CHAPTER</Link>
+              <Link href="/artefacts">{cta_secondary_text}</Link>
             </Button>
           </div>
         </div>
@@ -229,7 +268,24 @@ function BookSpotlightSection() {
 }
 
 /* ─── The Feed Section ─── */
-function TheFeedSection() {
+function TheFeedSection({
+  c,
+}: {
+  c: Record<string, Record<string, string>>
+}) {
+  const f = c.feed || {}
+
+  const title = f.title || "The Feed"
+  const description =
+    f.description ||
+    "Behind the scenes, author insights, and visual storytelling."
+  const cta_text = f.cta_text || "FOLLOW @INK2SCREEN"
+  const cta_link = f.cta_link || "https://instagram.com/ink2screen"
+  const youtube_video = f.youtube_video || "/videos/youtube-author-insights.mp4"
+  const youtube_label = f.youtube_label || "Author Insights"
+  const tiktok_video = f.tiktok_video || "/videos/tiktok-behind-scenes.mp4"
+  const tiktok_label = f.tiktok_label || "Behind the Scenes"
+
   return (
     <section className="relative overflow-hidden px-6 py-20">
       {/* Background texture */}
@@ -254,10 +310,7 @@ function TheFeedSection() {
               playsInline
               className="absolute inset-0 h-full w-full object-cover"
             >
-              <source
-                src="/videos/youtube-author-insights.mp4"
-                type="video/mp4"
-              />
+              <source src={youtube_video} type="video/mp4" />
             </video>
             {/* Dark overlay with play icon hint */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
@@ -272,12 +325,8 @@ function TheFeedSection() {
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-semibold text-white">
-                  YouTube
-                </p>
-                <p className="text-xs text-white/60">
-                  Author Insights
-                </p>
+                <p className="text-sm font-semibold text-white">YouTube</p>
+                <p className="text-xs text-white/60">{youtube_label}</p>
               </div>
             </div>
           </div>
@@ -291,10 +340,7 @@ function TheFeedSection() {
               playsInline
               className="absolute inset-0 h-full w-full object-cover"
             >
-              <source
-                src="/videos/tiktok-behind-scenes.mp4"
-                type="video/mp4"
-              />
+              <source src={tiktok_video} type="video/mp4" />
             </video>
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
             <div className="absolute bottom-6 left-6 flex items-center gap-3">
@@ -308,12 +354,8 @@ function TheFeedSection() {
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-semibold text-white">
-                  TikTok
-                </p>
-                <p className="text-xs text-white/60">
-                  Behind the Scenes
-                </p>
+                <p className="text-sm font-semibold text-white">TikTok</p>
+                <p className="text-xs text-white/60">{tiktok_label}</p>
               </div>
             </div>
           </div>
@@ -322,10 +364,10 @@ function TheFeedSection() {
         {/* Caption */}
         <div className="flex flex-col items-center gap-4">
           <h2 className="text-center font-heading text-4xl font-bold leading-[1.3] tracking-tight text-brand-gold md:text-5xl">
-            The Feed
+            {title}
           </h2>
           <p className="text-center text-base font-normal leading-[1.7] text-[#f0f0f0]">
-            Behind the scenes, author insights, and visual storytelling.
+            {description}
           </p>
           <Button
             asChild
@@ -333,11 +375,11 @@ function TheFeedSection() {
             className="h-14 border-brand-gold px-8 text-sm font-bold tracking-widest text-brand-gold hover:bg-brand-gold/10"
           >
             <Link
-              href="https://instagram.com/ink2screen"
+              href={cta_link}
               target="_blank"
               rel="noopener noreferrer"
             >
-              FOLLOW @INK2SCREEN
+              {cta_text}
             </Link>
           </Button>
         </div>
@@ -347,7 +389,23 @@ function TheFeedSection() {
 }
 
 /* ─── Ink & Indulgence Event Section ─── */
-function InkAndIndulgenceSection() {
+function InkAndIndulgenceSection({
+  c,
+}: {
+  c: Record<string, Record<string, string>>
+}) {
+  const e = c.ink_indulgence || {}
+
+  const label = e.label || "CULTURAL EXPERIENCE"
+  const title = e.title || "INK & INDULGENCE"
+  const subtitle = e.subtitle || "Vol. 1: The Launch"
+  const description =
+    e.description ||
+    "Join us for a refined evening of conversation, storytelling, and the official release of Raison D'etre."
+  const location = e.location || "HOUSTON, TEXAS \u2022 LATE 2026"
+  const cta_text = e.cta_text || "JOIN THE WAITLIST"
+  const cta_link = e.cta_link || "/events"
+
   return (
     <section className="px-6 py-8">
       <div className="relative mx-auto max-w-[1260px] overflow-hidden rounded-[50px] border border-[#2e004e] bg-[#121212]">
@@ -364,31 +422,30 @@ function InkAndIndulgenceSection() {
         <div className="relative flex min-h-[578px] flex-col items-center justify-center gap-6 px-6 py-16">
           <div className="flex flex-col items-center gap-4 text-center">
             <p className="text-sm font-semibold tracking-[0.1em] text-brand-gold">
-              CULTURAL EXPERIENCE
+              {label}
             </p>
             <h2 className="font-heading text-4xl font-bold leading-[1.3] tracking-tight text-[#e0e0e0] md:text-5xl">
-              INK &amp; INDULGENCE
+              {title}
             </h2>
           </div>
 
           <p className="text-center font-heading text-2xl font-bold leading-[1.4] tracking-tight text-brand-gold md:text-[32px]">
-            Vol. 1: The Launch
+            {subtitle}
           </p>
 
           <p className="max-w-[637px] text-center text-xl font-light leading-relaxed text-[#f0f0f0] md:text-2xl">
-            Join us for a refined evening of conversation, storytelling, and the
-            official release of Raison D&apos;etre.
+            {description}
           </p>
 
           <p className="text-center text-sm font-bold leading-relaxed text-[#f0f0f0]">
-            HOUSTON, TEXAS &bull; LATE 2026
+            {location}
           </p>
 
           <Button
             asChild
             className="h-14 bg-brand-gold px-8 text-sm font-bold tracking-widest text-[#050505] hover:bg-brand-gold-dark"
           >
-            <Link href="/events">JOIN THE WAITLIST</Link>
+            <Link href={cta_link}>{cta_text}</Link>
           </Button>
         </div>
       </div>
@@ -397,7 +454,18 @@ function InkAndIndulgenceSection() {
 }
 
 /* ─── Control the Narrative CTA Section ─── */
-function ControlTheNarrativeSection() {
+function ControlTheNarrativeSection({
+  c,
+}: {
+  c: Record<string, Record<string, string>>
+}) {
+  const n = c.newsletter || {}
+
+  const title = n.title || "CONTROL THE NARRATIVE"
+  const description =
+    n.description ||
+    "Join the Ink2Screen Registry for early access to manuscripts, event tickets, and exclusive merchandise."
+
   return (
     <section className="relative flex min-h-[401px] items-center justify-center overflow-hidden px-6">
       {/* Purple radial glow bg */}
@@ -416,11 +484,10 @@ function ControlTheNarrativeSection() {
       <div className="relative mx-auto flex max-w-[1088px] flex-col items-center gap-10">
         <div className="flex flex-col gap-4 text-center">
           <h2 className="font-heading text-4xl font-bold leading-[1.3] tracking-tight text-brand-gold md:text-5xl">
-            CONTROL THE NARRATIVE
+            {title}
           </h2>
           <p className="text-base font-normal leading-[1.7] text-[#f0f0f0]">
-            Join the Ink2Screen Registry for early access to manuscripts, event
-            tickets, and exclusive merchandise.
+            {description}
           </p>
         </div>
 
@@ -445,15 +512,18 @@ function ControlTheNarrativeSection() {
 }
 
 /* ─── Homepage ─── */
-export default function HomePage() {
+export default async function HomePage() {
+  const content = await getContent("home")
+  const c = content.home || {}
+
   return (
     <div className="bg-[#050505]">
-      <HeroSection />
-      <EngineeringNarrativesSection />
-      <BookSpotlightSection />
-      <TheFeedSection />
-      <InkAndIndulgenceSection />
-      <ControlTheNarrativeSection />
+      <HeroSection c={c} />
+      <EngineeringNarrativesSection c={c} />
+      <BookSpotlightSection c={c} />
+      <TheFeedSection c={c} />
+      <InkAndIndulgenceSection c={c} />
+      <ControlTheNarrativeSection c={c} />
     </div>
   )
 }

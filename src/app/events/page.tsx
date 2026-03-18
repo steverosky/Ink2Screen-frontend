@@ -12,6 +12,7 @@ import {
   EVENT_TYPE_LABELS,
   type EventListItem,
 } from "@/lib/events-api"
+import { getContent, cms } from "@/lib/cms"
 
 export const metadata: Metadata = {
   title: "Events",
@@ -81,7 +82,7 @@ async function getEvents(): Promise<EventListItem[]> {
 }
 
 /* ─── Hero ─── */
-function HeroSection() {
+function HeroSection({ c }: { c: Record<string, Record<string, Record<string, string>>> }) {
   return (
     <section className="relative flex min-h-[520px] items-center justify-center overflow-hidden bg-[#050505] py-20 md:py-24">
       <div className="absolute inset-0">
@@ -106,16 +107,13 @@ function HeroSection() {
 
       <div className="relative mx-auto flex max-w-[900px] flex-col items-center gap-6 px-6 text-center">
         <p className="text-xs font-semibold tracking-[0.15em] text-brand-gold sm:text-sm">
-          EVENTS &amp; EXPERIENCES
+          {cms(c, "events", "hero", "label", "EVENTS & EXPERIENCES")}
         </p>
         <h1 className="font-heading text-3xl font-bold leading-[1.2] tracking-tight text-[#e0e0e0] sm:text-4xl md:text-5xl lg:text-[64px]">
-          WHERE INK MEETS
-          <br />
-          THE AUDIENCE
+          {cms(c, "events", "hero", "headline", "WHERE INK MEETS THE AUDIENCE")}
         </h1>
         <p className="max-w-[600px] text-base font-light leading-relaxed text-[#e0e0e0] sm:text-lg md:text-xl">
-          Book signings, author talks, workshops, and the Ink &amp; Indulgence
-          cultural experience series.
+          {cms(c, "events", "hero", "description", "Book signings, author talks, workshops, and the Ink & Indulgence cultural experience series.")}
         </p>
       </div>
     </section>
@@ -123,7 +121,7 @@ function HeroSection() {
 }
 
 /* ─── Featured Event (Ink & Indulgence) ─── */
-function FeaturedEventSection() {
+function FeaturedEventSection({ c }: { c: Record<string, Record<string, Record<string, string>>> }) {
   return (
     <section className="px-6 py-8">
       <div className="relative mx-auto max-w-[1260px] overflow-hidden rounded-[50px] border border-[#2e004e] bg-[#121212]">
@@ -139,24 +137,23 @@ function FeaturedEventSection() {
         <div className="relative flex min-h-[480px] flex-col items-center justify-center gap-6 px-6 py-16">
           <div className="flex flex-col items-center gap-4 text-center">
             <p className="text-sm font-semibold tracking-[0.1em] text-brand-gold">
-              FEATURED EXPERIENCE
+              {cms(c, "events", "featured", "label", "FEATURED EXPERIENCE")}
             </p>
             <h2 className="font-heading text-4xl font-bold leading-[1.3] tracking-tight text-[#e0e0e0] md:text-5xl">
-              INK &amp; INDULGENCE
+              {cms(c, "events", "featured", "title", "INK & INDULGENCE")}
             </h2>
           </div>
 
           <p className="text-center font-heading text-2xl font-bold leading-[1.4] tracking-tight text-brand-gold md:text-[32px]">
-            Vol. 1: The Launch
+            {cms(c, "events", "featured", "subtitle", "Vol. 1: The Launch")}
           </p>
 
           <p className="max-w-[637px] text-center text-lg font-light leading-relaxed text-[#f0f0f0] md:text-xl">
-            A refined evening of conversation, storytelling, live music, and the
-            official release of Raison D&apos;etre. Limited seating.
+            {cms(c, "events", "featured", "description", "A refined evening of conversation, storytelling, live music, and the official release of Raison D'etre. Limited seating.")}
           </p>
 
           <p className="text-center text-sm font-bold leading-relaxed text-[#f0f0f0]">
-            HOUSTON, TEXAS &bull; LATE 2026
+            {cms(c, "events", "featured", "location", "HOUSTON, TEXAS \u2022 LATE 2026")}
           </p>
 
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -313,7 +310,7 @@ function CalendarSection() {
 }
 
 /* ─── CTA ─── */
-function CTASection() {
+function CTASection({ c }: { c: Record<string, Record<string, Record<string, string>>> }) {
   return (
     <section className="relative flex min-h-[350px] items-center justify-center overflow-hidden">
       {/* Purple radial glow */}
@@ -331,17 +328,16 @@ function CTASection() {
 
       <div className="relative mx-auto flex max-w-[800px] flex-col items-center gap-6 px-6 py-16 text-center">
         <h2 className="font-heading text-3xl font-bold leading-[1.2] tracking-tight text-[#e0e0e0] sm:text-4xl md:text-5xl">
-          HOST AN EVENT WITH US
+          {cms(c, "events", "cta", "title", "HOST AN EVENT WITH US")}
         </h2>
         <p className="max-w-[500px] text-base font-light leading-relaxed text-[#e0e0e0] md:text-lg">
-          Interested in partnering with Ink2Screen for a book signing, workshop,
-          or literary event? Let&apos;s talk.
+          {cms(c, "events", "cta", "description", "Interested in partnering with Ink2Screen for a book signing, workshop, or literary event? Let's talk.")}
         </p>
         <Button
           asChild
           className="h-14 bg-brand-gold px-8 text-sm font-bold tracking-widest text-[#050505] hover:bg-brand-gold-dark"
         >
-          <Link href="/contact">GET IN TOUCH</Link>
+          <Link href="/contact">{cms(c, "events", "cta", "cta_text", "GET IN TOUCH")}</Link>
         </Button>
       </div>
     </section>
@@ -350,15 +346,15 @@ function CTASection() {
 
 /* ─── Page ─── */
 export default async function EventsPage() {
-  const events = await getEvents()
+  const [events, c] = await Promise.all([getEvents(), getContent("events")])
 
   return (
     <div className="bg-[#050505]">
-      <HeroSection />
-      <FeaturedEventSection />
+      <HeroSection c={c} />
+      <FeaturedEventSection c={c} />
       <UpcomingEventsSection events={events} />
       <CalendarSection />
-      <CTASection />
+      <CTASection c={c} />
     </div>
   )
 }

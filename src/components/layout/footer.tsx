@@ -1,6 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { NewsletterSignup } from "@/components/newsletter-signup"
+import { getContent } from "@/lib/cms"
 
 const exploreLinks = [
   { label: "Shop", href: "/artefacts" },
@@ -14,15 +15,26 @@ const legalLinks = [
   { label: "Terms of Service", href: "/terms" },
 ]
 
-const socialLinks = [
-  { label: "Instagram", href: "https://instagram.com/ink2screen" },
-  { label: "TikTok", href: "https://tiktok.com/@ink2screen" },
-  { label: "YouTube", href: "https://youtube.com/@Ink2ScreenLLC" },
-  { label: "YouTube (Galvarino)", href: "https://youtube.com/@GalvarinoChillyTv" },
-  { label: "Twitter / X", href: "https://x.com/Ink2ScreenLLC" },
+const DEFAULT_SOCIAL_LINKS = [
+  { label: "Instagram", key: "instagram_url", fallback: "https://instagram.com/ink2screen" },
+  { label: "TikTok", key: "tiktok_url", fallback: "https://tiktok.com/@ink2screen" },
+  { label: "YouTube", key: "youtube_url", fallback: "https://youtube.com/@Ink2ScreenLLC" },
+  { label: "YouTube (Galvarino)", key: "youtube_galvarino_url", fallback: "https://youtube.com/@GalvarinoChillyTv" },
+  { label: "Twitter / X", key: "twitter_url", fallback: "https://x.com/Ink2ScreenLLC" },
 ]
 
-export function Footer() {
+export async function Footer() {
+  let socialContent: Record<string, string> = {}
+  try {
+    const c = await getContent("global")
+    socialContent = c?.global?.social ?? {}
+  } catch {
+    // CMS unavailable — use fallbacks
+  }
+  const socialLinks = DEFAULT_SOCIAL_LINKS.map((link) => ({
+    label: link.label,
+    href: socialContent[link.key] ?? link.fallback,
+  }))
   return (
     <footer className="bg-black px-7 pb-10 pt-6">
       <div className="mx-auto flex max-w-[1440px] flex-col gap-8 md:flex-row md:items-start md:justify-between">
