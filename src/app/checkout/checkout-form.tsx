@@ -192,7 +192,7 @@ function OrderSidebar({ cart, cartId, onCartUpdate }: { cart: any; cartId: strin
     setPromoError("")
     setPromoSuccess("")
     try {
-      await sdk.store.cart.addPromotions(cartId, { promo_codes: [code] })
+      await sdk.client.fetch(`/store/carts/${cartId}/promotions`, { method: "POST", body: { promo_codes: [code] } })
       setDiscountCode("")
       setPromoSuccess(`"${code}" applied.`)
       onCartUpdate()
@@ -206,7 +206,7 @@ function OrderSidebar({ cart, cartId, onCartUpdate }: { cart: any; cartId: strin
   async function removePromoCode(code: string) {
     if (!cartId) return
     try {
-      await sdk.store.cart.deletePromotions(cartId, { promo_codes: [code] })
+      await sdk.client.fetch(`/store/carts/${cartId}/promotions`, { method: "DELETE", body: { promo_codes: [code] } })
       setPromoSuccess("")
       onCartUpdate()
     } catch {
