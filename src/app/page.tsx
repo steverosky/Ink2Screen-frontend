@@ -3,7 +3,6 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { getContent } from "@/lib/cms"
-import { AudioPlayer } from "@/components/audio-player"
 import { SocialFeedSection } from "@/components/social-feed"
 
 /* ─── Hero Section ─── */
@@ -509,7 +508,47 @@ function SocialSection({
       !!p.url && (p.platform === "instagram" || p.platform === "tiktok")
   )
 
-  if (rawPosts.length === 0) return null
+  if (rawPosts.length === 0) {
+    // Dev placeholder — shows the section layout until CMS posts are configured
+    return (
+      <section className="px-6 py-20">
+        <div className="mx-auto max-w-[1088px]">
+          <div className="mb-10 flex flex-col items-center gap-3 text-center">
+            <h2 className="font-heading text-4xl font-bold leading-[1.3] tracking-tight text-brand-gold md:text-5xl">
+              {title}
+            </h2>
+            <p className="max-w-[560px] text-base leading-[1.7] text-[#e0e0e0]">{description}</p>
+            <div className="flex items-center gap-4">
+              <Link href="https://instagram.com/ink2screen" target="_blank" rel="noopener noreferrer"
+                className="text-sm font-semibold tracking-widest text-brand-gold underline underline-offset-4 hover:text-brand-gold/80">
+                @INK2SCREEN
+              </Link>
+              <Link href="https://tiktok.com/@ink2screen" target="_blank" rel="noopener noreferrer"
+                className="text-sm font-semibold tracking-widest text-brand-gold underline underline-offset-4 hover:text-brand-gold/80">
+                TIKTOK
+              </Link>
+            </div>
+          </div>
+          {/* Placeholder post cards */}
+          <div className="grid gap-6 sm:grid-cols-3">
+            {[
+              { platform: "Instagram", icon: "M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" },
+              { platform: "TikTok", icon: "M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.76a4.85 4.85 0 01-1.01-.07z" },
+              { platform: "Instagram", icon: "M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" },
+            ].map((item, i) => (
+              <div key={i} className="flex aspect-square flex-col items-center justify-center gap-3 rounded-lg border border-brand-gold/20 bg-[#121212]">
+                <svg viewBox="0 0 24 24" className="h-10 w-10 fill-brand-gold/30">
+                  <path d={item.icon} />
+                </svg>
+                <p className="text-[10px] font-bold tracking-[0.2em] text-[#444]">{item.platform.toUpperCase()}</p>
+                <p className="text-[9px] tracking-widest text-[#333]">SET POST URL IN CMS</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <SocialFeedSection
@@ -521,64 +560,6 @@ function SocialSection({
         tiktok: "https://tiktok.com/@ink2screen",
       }}
     />
-  )
-}
-
-/* ─── Listen / Audio Section ─── */
-function ListenSection({
-  c,
-}: {
-  c: Record<string, Record<string, string>>
-}) {
-  const a = c.audio || {}
-
-  const title = a.title || "LISTEN IN"
-  const description =
-    a.description ||
-    "Conversations, audiobook samples, and insights from the world of Ink2Screen."
-
-  const tracks = [
-    {
-      title: a.ep1_title || "The Writing Process",
-      description: a.ep1_desc || "Sterling R. Smith breaks down his approach to storytelling and publishing.",
-      src: a.ep1_src || "",
-      duration: a.ep1_duration || "",
-      label: a.ep1_label || "PODCAST",
-    },
-    {
-      title: a.ep2_title || "Raison D'etre — Chapter 1",
-      description: a.ep2_desc || "Hear the opening chapter of the debut novel read by the author.",
-      src: a.ep2_src || "",
-      duration: a.ep2_duration || "",
-      label: a.ep2_label || "AUDIOBOOK SAMPLE",
-    },
-    {
-      title: a.ep3_title || "Ink & Indulgence: The Vision",
-      description: a.ep3_desc || "A behind-the-scenes conversation about the cultural event series.",
-      src: a.ep3_src || "",
-      duration: a.ep3_duration || "",
-      label: a.ep3_label || "INTERVIEW",
-    },
-  ].filter((t) => t.src)
-
-  if (tracks.length === 0) return null
-
-  return (
-    <section className="px-6 py-20">
-      <div className="mx-auto max-w-[1088px]">
-        <div className="mb-10 flex flex-col items-center gap-3 text-center">
-          <h2 className="font-heading text-4xl font-bold leading-[1.3] tracking-tight text-brand-gold md:text-5xl">
-            {title}
-          </h2>
-          <p className="max-w-[560px] text-base leading-[1.7] text-[#e0e0e0]">{description}</p>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {tracks.map((track) => (
-            <AudioPlayer key={track.title} track={track} />
-          ))}
-        </div>
-      </div>
-    </section>
   )
 }
 
@@ -652,7 +633,6 @@ export default async function HomePage() {
       <BookSpotlightSection c={c} />
       <TheFeedSection c={c} />
       <SocialSection c={c} />
-      <ListenSection c={c} />
       <InkAndIndulgenceSection c={c} />
       <ControlTheNarrativeSection c={c} />
     </div>

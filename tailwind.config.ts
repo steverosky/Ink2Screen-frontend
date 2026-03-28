@@ -70,6 +70,15 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      keyframes: {
+        waveform: {
+          "0%, 100%": { height: "4px" },
+          "50%": { height: "16px" },
+        },
+      },
+      animation: {
+        waveform: "waveform 0.8s ease-in-out infinite",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],
