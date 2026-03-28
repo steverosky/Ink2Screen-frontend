@@ -5,7 +5,7 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { ShoppingCart, Menu, Search, User, LogOut, Heart, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Badge } from "@/components/ui/badge"
 import { useCartStore, useAuthStore } from "@/lib/store"
 import { useState, useEffect, useRef, useCallback } from "react"
@@ -54,8 +54,9 @@ export function Header() {
       .catch(() => setCartCount(0))
   }, [cartId])
 
-  // Validate auth session on mount
+  // Validate auth session on mount — only if store thinks we're logged in
   useEffect(() => {
+    if (!isAuthenticated) return
     sdk.store.customer
       .retrieve()
       .then(({ customer }) => {
@@ -141,8 +142,7 @@ export function Header() {
             alt="Ink2Screen"
             width={34}
             height={40}
-            className="h-10"
-            style={{ width: "auto" }}
+            className="h-10 w-auto"
             priority
           />
         </Link>
@@ -336,6 +336,7 @@ export function Header() {
               side="right"
               className="w-72 border-l border-brand-gold/20 bg-[#050505]"
             >
+              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
               <nav className="flex flex-col gap-4 pt-8">
                 {navigation.map((item) => (
                   <Link
