@@ -8,7 +8,13 @@ import { getContent, cms } from "@/lib/cms"
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Get in touch with Ink2Screen LLC Publishing — inquiries, partnerships, and event collaborations.",
+    "Get in touch with Ink2Screen LLC Publishing — general inquiries, event partnerships, and press collaborations. Based in Houston, Texas.",
+  openGraph: {
+    title: "Contact Ink2Screen LLC Publishing",
+    description: "Reach out for general inquiries, events, and press. Based in Houston, Texas.",
+    url: "https://www.ink2screenllc.com/contact",
+  },
+  alternates: { canonical: "https://www.ink2screenllc.com/contact" },
 }
 
 type ContentMap = Record<string, Record<string, Record<string, string>>>

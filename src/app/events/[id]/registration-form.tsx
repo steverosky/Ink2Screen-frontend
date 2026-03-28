@@ -9,6 +9,7 @@ import {
   Square,
   Minus,
   Plus,
+  ArrowLeft,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,7 +18,12 @@ import {
   formatEventPrice,
   type EventDetail,
 } from "@/lib/events-api"
+import { sdk } from "@/lib/sdk"
 import { cn } from "@/lib/utils"
+import {
+  EventStripePayment,
+  type EventRegistrationPayload,
+} from "./stripe-payment-form"
 
 function FormInput({
   className,
@@ -34,7 +40,11 @@ function FormInput({
   )
 }
 
+type Step = "form" | "payment"
+
 export function EventRegistrationForm({ event }: { event: EventDetail }) {
+  const [step, setStep] = useState<Step>("form")
+
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
@@ -42,6 +52,10 @@ export function EventRegistrationForm({ event }: { event: EventDetail }) {
   const [quantity, setQuantity] = useState(1)
   const [waiverAccepted, setWaiverAccepted] = useState(false)
   const [mediaReleaseAccepted, setMediaReleaseAccepted] = useState(false)
+
+  // Payment state (paid events)
+  const [clientSecret, setClientSecret] = useState("")
+  const [paymentIntentId, setPaymentIntentId] = useState("")
 
   const [status, setStatus] = useState<
     "idle" | "loading" | "success" | "error"
@@ -68,24 +82,65 @@ export function EventRegistrationForm({ event }: { event: EventDetail }) {
     setStatus("loading")
     setErrorMsg("")
 
-    try {
-      const registration = await registerForEvent(event.id, {
-        first_name: firstName,
-        last_name: lastName,
-        email,
-        phone: phone || undefined,
-        ticket_quantity: quantity,
-        waiver_accepted: waiverAccepted,
-        media_release_accepted: mediaReleaseAccepted,
-      })
-      setRegistrationId(registration.id)
-      setStatus("success")
-    } catch (err) {
-      setErrorMsg(
-        err instanceof Error ? err.message : "Registration failed. Please try again."
-      )
-      setStatus("error")
+    if (event.is_free) {
+      // Free event: register directly with .NET backend
+      try {
+        const registration = await registerForEvent(event.id, {
+          first_name: firstName,
+          last_name: lastName,
+          email,
+          phone: phone || undefined,
+          ticket_quantity: quantity,
+          waiver_accepted: waiverAccepted,
+          media_release_accepted: mediaReleaseAccepted,
+        })
+        setRegistrationId(registration.id)
+        setStatus("success")
+      } catch (err) {
+        setErrorMsg(
+          err instanceof Error
+            ? err.message
+            : "Registration failed. Please try again."
+        )
+        setStatus("error")
+      }
+    } else {
+      // Paid event: create Stripe PaymentIntent via Medusa, then show card form
+      try {
+        const result = await sdk.client.fetch<{
+          client_secret: string
+          payment_intent_id: string
+        }>("/store/event-payments", {
+          method: "POST",
+          body: {
+            event_id: event.id,
+            amount: totalPrice,
+          },
+        })
+        setClientSecret(result.client_secret)
+        setPaymentIntentId(result.payment_intent_id)
+        setStatus("idle")
+        setStep("payment")
+      } catch (err) {
+        setErrorMsg(
+          err instanceof Error
+            ? err.message
+            : "Could not initialize payment. Please try again."
+        )
+        setStatus("error")
+      }
     }
+  }
+
+  const registrationPayload: EventRegistrationPayload = {
+    event_id: event.id,
+    first_name: firstName,
+    last_name: lastName,
+    email,
+    phone: phone || undefined,
+    ticket_quantity: quantity,
+    waiver_accepted: waiverAccepted,
+    media_release_accepted: mediaReleaseAccepted,
   }
 
   // --- Success State ---
@@ -109,6 +164,61 @@ export function EventRegistrationForm({ event }: { event: EventDetail }) {
         >
           <Link href="/events">BROWSE MORE EVENTS</Link>
         </Button>
+      </div>
+    )
+  }
+
+  // --- Payment Step (paid events only) ---
+  if (step === "payment" && clientSecret) {
+    return (
+      <div className="rounded-[10px] border border-[#222] bg-[#121212] p-6 md:p-8">
+        <button
+          type="button"
+          onClick={() => setStep("form")}
+          className="mb-5 flex items-center gap-1.5 text-xs text-[#888] transition-colors hover:text-brand-gold"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Edit details
+        </button>
+
+        <h3 className="mb-1 font-heading text-xl font-bold tracking-tight text-[#e0e0e0]">
+          PAYMENT
+        </h3>
+
+        {/* Order summary */}
+        <div className="mb-5 rounded border border-[#2a2a2a] bg-[#0d0d0d] px-4 py-3">
+          <div className="flex justify-between text-sm">
+            <span className="text-[#888]">
+              {quantity} × ticket{quantity > 1 ? "s" : ""}
+            </span>
+            <span className="font-bold text-brand-gold">
+              {formatEventPrice(totalPrice)}
+            </span>
+          </div>
+          <div className="mt-1 text-xs text-[#666]">
+            {firstName} {lastName} · {email}
+          </div>
+        </div>
+
+        {/* Stripe Elements */}
+        <EventStripePayment
+          clientSecret={clientSecret}
+          paymentIntentId={paymentIntentId}
+          registrationData={registrationPayload}
+          totalPrice={totalPrice}
+          onSuccess={(id) => {
+            setRegistrationId(id)
+            setStatus("success")
+          }}
+          onError={(msg) => {
+            setErrorMsg(msg)
+            setStatus("error")
+          }}
+        />
+
+        {status === "error" && (
+          <p className="mt-3 text-center text-xs text-red-400">{errorMsg}</p>
+        )}
       </div>
     )
   }
@@ -274,12 +384,12 @@ export function EventRegistrationForm({ event }: { event: EventDetail }) {
           {status === "loading" ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              REGISTERING...
+              {event.is_free ? "REGISTERING..." : "PREPARING PAYMENT..."}
             </>
           ) : event.is_free ? (
             "REGISTER — FREE"
           ) : (
-            `REGISTER — ${formatEventPrice(totalPrice)}`
+            `CONTINUE TO PAYMENT — ${formatEventPrice(totalPrice)}`
           )}
         </Button>
 

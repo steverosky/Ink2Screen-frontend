@@ -3,6 +3,8 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { getContent } from "@/lib/cms"
+import { AudioPlayer } from "@/components/audio-player"
+import { SocialFeedSection } from "@/components/social-feed"
 
 /* ─── Hero Section ─── */
 function HeroSection({
@@ -281,10 +283,13 @@ function TheFeedSection({
     "Behind the scenes, author insights, and visual storytelling."
   const cta_text = f.cta_text || "FOLLOW @INK2SCREEN"
   const cta_link = f.cta_link || "https://instagram.com/ink2screen"
-  const youtube_video = f.youtube_video || "/videos/youtube-author-insights.mp4"
+  // CMS fields should contain YouTube video ID (e.g. "dQw4w9WgXcQ") and TikTok video ID (numeric string)
+  const youtube_id = f.youtube_video && !f.youtube_video.startsWith("/") ? f.youtube_video : ""
   const youtube_label = f.youtube_label || "Author Insights"
-  const tiktok_video = f.tiktok_video || "/videos/tiktok-behind-scenes.mp4"
+  const youtube_channel = f.youtube_channel || "https://youtube.com/@Ink2ScreenLLC"
+  const tiktok_id = f.tiktok_video && !f.tiktok_video.startsWith("/") ? f.tiktok_video : ""
   const tiktok_label = f.tiktok_label || "Behind the Scenes"
+  const tiktok_channel = f.tiktok_channel || "https://tiktok.com/@ink2screen"
 
   return (
     <section className="relative overflow-hidden px-6 py-20">
@@ -301,63 +306,92 @@ function TheFeedSection({
       <div className="relative mx-auto flex max-w-[1088px] flex-col items-center gap-8">
         {/* Video Grid */}
         <div className="flex w-full flex-col gap-4 md:flex-row">
-          {/* Main Video — YouTube style */}
+          {/* Main Video — YouTube */}
           <div className="relative h-[400px] w-full overflow-hidden rounded-lg bg-[#121212] md:h-[632px] md:w-[570px]">
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="absolute inset-0 h-full w-full object-cover"
-            >
-              <source src={youtube_video} type="video/mp4" />
-            </video>
-            {/* Dark overlay with play icon hint */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
-            <div className="absolute bottom-6 left-6 flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-gold/90">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="#050505"
-                  className="ml-1 h-5 w-5"
-                >
-                  <path d="M8 5v14l11-7z" />
+            {youtube_id ? (
+              <iframe
+                src={`https://www.youtube-nocookie.com/embed/${youtube_id}?autoplay=1&mute=1&loop=1&playlist=${youtube_id}&controls=1&rel=0&modestbranding=1`}
+                title={youtube_label}
+                allow="autoplay; encrypted-media; picture-in-picture"
+                allowFullScreen
+                className="absolute inset-0 h-full w-full border-0"
+              />
+            ) : (
+              /* Placeholder when no video ID is set in CMS */
+              <Link
+                href={youtube_channel}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute inset-0 flex flex-col items-center justify-center gap-4 transition-colors hover:bg-white/5"
+              >
+                <svg viewBox="0 0 90 20" className="h-8 w-auto fill-white/60">
+                  <path d="M27.9727 3.12324C27.6435 1.89323 26.6768 0.926623 25.4468 0.597366C23.2197 2.24288e-07 14.285 0 14.285 0C14.285 0 5.35042 2.24288e-07 3.12323 0.597366C1.89323 0.926623 0.926623 1.89323 0.597366 3.12324C2.24288e-07 5.35042 0 10 0 10C0 10 2.24288e-07 14.6496 0.597366 16.8768C0.926623 18.1068 1.89323 19.0734 3.12323 19.4026C5.35042 20 14.285 20 14.285 20C14.285 20 23.2197 20 25.4468 19.4026C26.6768 19.0734 27.6435 18.1068 27.9727 16.8768C28.5701 14.6496 28.5701 10 28.5701 10C28.5701 10 28.5677 5.35042 27.9727 3.12324ZM11.4253 14.2854V5.71458L18.8477 10.0015L11.4253 14.2854Z" />
                 </svg>
+                <div className="text-center">
+                  <p className="text-sm font-semibold text-white/80">YouTube</p>
+                  <p className="text-xs text-white/40">{youtube_label}</p>
+                  <p className="mt-2 text-xs text-white/30">Set youtube_video ID in CMS</p>
+                </div>
+              </Link>
+            )}
+            {/* Label overlay — shown only when iframe is active */}
+            {youtube_id && (
+              <div className="pointer-events-none absolute bottom-6 left-6 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-gold/90">
+                  <svg viewBox="0 0 90 20" className="h-3 w-auto fill-[#050505]">
+                    <path d="M27.9727 3.12324C27.6435 1.89323 26.6768 0.926623 25.4468 0.597366C23.2197 2.24288e-07 14.285 0 14.285 0C14.285 0 5.35042 2.24288e-07 3.12323 0.597366C1.89323 0.926623 0.926623 1.89323 0.597366 3.12324C2.24288e-07 5.35042 0 10 0 10C0 10 2.24288e-07 14.6496 0.597366 16.8768C0.926623 18.1068 1.89323 19.0734 3.12323 19.4026C5.35042 20 14.285 20 14.285 20C14.285 20 23.2197 20 25.4468 19.4026C26.6768 19.0734 27.6435 18.1068 27.9727 16.8768C28.5701 14.6496 28.5701 10 28.5701 10C28.5701 10 28.5677 5.35042 27.9727 3.12324ZM11.4253 14.2854V5.71458L18.8477 10.0015L11.4253 14.2854Z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white drop-shadow">YouTube</p>
+                  <p className="text-xs text-white/60 drop-shadow">{youtube_label}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-semibold text-white">YouTube</p>
-                <p className="text-xs text-white/60">{youtube_label}</p>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* TikTok style — vertical */}
           <div className="relative h-[400px] w-full overflow-hidden rounded-lg bg-[#121212] md:h-[632px] md:w-[397px]">
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="absolute inset-0 h-full w-full object-cover"
-            >
-              <source src={tiktok_video} type="video/mp4" />
-            </video>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
-            <div className="absolute bottom-6 left-6 flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-gold/90">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="#050505"
-                  className="ml-0.5 h-5 w-5"
-                >
-                  <path d="M8 5v14l11-7z" />
+            {tiktok_id ? (
+              <iframe
+                src={`https://www.tiktok.com/embed/v2/${tiktok_id}`}
+                title={tiktok_label}
+                allow="encrypted-media"
+                allowFullScreen
+                className="absolute inset-0 h-full w-full border-0"
+              />
+            ) : (
+              /* Placeholder when no video ID is set in CMS */
+              <Link
+                href={tiktok_channel}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute inset-0 flex flex-col items-center justify-center gap-4 transition-colors hover:bg-white/5"
+              >
+                <svg viewBox="0 0 24 24" className="h-10 w-10 fill-white/60">
+                  <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.76a4.85 4.85 0 01-1.01-.07z" />
                 </svg>
+                <div className="text-center">
+                  <p className="text-sm font-semibold text-white/80">TikTok</p>
+                  <p className="text-xs text-white/40">{tiktok_label}</p>
+                  <p className="mt-2 text-xs text-white/30">Set tiktok_video ID in CMS</p>
+                </div>
+              </Link>
+            )}
+            {/* Label overlay — shown only when iframe is active */}
+            {tiktok_id && (
+              <div className="pointer-events-none absolute bottom-6 left-6 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-gold/90">
+                  <svg viewBox="0 0 24 24" className="h-5 w-5 fill-[#050505]">
+                    <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.76a4.85 4.85 0 01-1.01-.07z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white drop-shadow">TikTok</p>
+                  <p className="text-xs text-white/60 drop-shadow">{tiktok_label}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-semibold text-white">TikTok</p>
-                <p className="text-xs text-white/60">{tiktok_label}</p>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -453,6 +487,101 @@ function InkAndIndulgenceSection({
   )
 }
 
+/* ─── Social Feed Section ─── */
+function SocialSection({
+  c,
+}: {
+  c: Record<string, Record<string, string>>
+}) {
+  const s = c.social_feed || {}
+
+  const title = s.title || "FOLLOW THE JOURNEY"
+  const description =
+    s.description || "Stay connected with the latest from Ink2Screen."
+
+  // CMS fields: post_1_platform ("instagram"|"tiktok"), post_1_url, post_2_*, post_3_*
+  const rawPosts = [
+    { platform: s.post_1_platform, url: s.post_1_url },
+    { platform: s.post_2_platform, url: s.post_2_url },
+    { platform: s.post_3_platform, url: s.post_3_url },
+  ].filter(
+    (p): p is { platform: "instagram" | "tiktok"; url: string } =>
+      !!p.url && (p.platform === "instagram" || p.platform === "tiktok")
+  )
+
+  if (rawPosts.length === 0) return null
+
+  return (
+    <SocialFeedSection
+      title={title}
+      description={description}
+      posts={rawPosts}
+      channelLinks={{
+        instagram: "https://instagram.com/ink2screen",
+        tiktok: "https://tiktok.com/@ink2screen",
+      }}
+    />
+  )
+}
+
+/* ─── Listen / Audio Section ─── */
+function ListenSection({
+  c,
+}: {
+  c: Record<string, Record<string, string>>
+}) {
+  const a = c.audio || {}
+
+  const title = a.title || "LISTEN IN"
+  const description =
+    a.description ||
+    "Conversations, audiobook samples, and insights from the world of Ink2Screen."
+
+  const tracks = [
+    {
+      title: a.ep1_title || "The Writing Process",
+      description: a.ep1_desc || "Sterling R. Smith breaks down his approach to storytelling and publishing.",
+      src: a.ep1_src || "",
+      duration: a.ep1_duration || "",
+      label: a.ep1_label || "PODCAST",
+    },
+    {
+      title: a.ep2_title || "Raison D'etre — Chapter 1",
+      description: a.ep2_desc || "Hear the opening chapter of the debut novel read by the author.",
+      src: a.ep2_src || "",
+      duration: a.ep2_duration || "",
+      label: a.ep2_label || "AUDIOBOOK SAMPLE",
+    },
+    {
+      title: a.ep3_title || "Ink & Indulgence: The Vision",
+      description: a.ep3_desc || "A behind-the-scenes conversation about the cultural event series.",
+      src: a.ep3_src || "",
+      duration: a.ep3_duration || "",
+      label: a.ep3_label || "INTERVIEW",
+    },
+  ].filter((t) => t.src)
+
+  if (tracks.length === 0) return null
+
+  return (
+    <section className="px-6 py-20">
+      <div className="mx-auto max-w-[1088px]">
+        <div className="mb-10 flex flex-col items-center gap-3 text-center">
+          <h2 className="font-heading text-4xl font-bold leading-[1.3] tracking-tight text-brand-gold md:text-5xl">
+            {title}
+          </h2>
+          <p className="max-w-[560px] text-base leading-[1.7] text-[#e0e0e0]">{description}</p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {tracks.map((track) => (
+            <AudioPlayer key={track.title} track={track} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 /* ─── Control the Narrative CTA Section ─── */
 function ControlTheNarrativeSection({
   c,
@@ -522,6 +651,8 @@ export default async function HomePage() {
       <EngineeringNarrativesSection c={c} />
       <BookSpotlightSection c={c} />
       <TheFeedSection c={c} />
+      <SocialSection c={c} />
+      <ListenSection c={c} />
       <InkAndIndulgenceSection c={c} />
       <ControlTheNarrativeSection c={c} />
     </div>

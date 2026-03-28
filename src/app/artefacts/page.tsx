@@ -8,7 +8,14 @@ import { getContent, cms } from "@/lib/cms"
 export const metadata: Metadata = {
   title: "The Artifacts",
   description:
-    "Limited editions, narratives, and curated goods from Ink2Screen LLC Publishing.",
+    "Limited editions, narratives, and curated goods from Ink2Screen LLC Publishing. Shop books, apparel, and exclusive merchandise.",
+  openGraph: {
+    title: "The Artifacts — Ink2Screen LLC Publishing",
+    description: "Shop books, apparel, and exclusive limited-edition merchandise from Ink2Screen LLC Publishing.",
+    url: "https://www.ink2screenllc.com/artefacts",
+    images: [{ url: "/images/book-spotlight.png", width: 1200, height: 630, alt: "Ink2Screen Artifacts" }],
+  },
+  alternates: { canonical: "https://www.ink2screenllc.com/artefacts" },
 }
 
 function formatPrice(amount: number | undefined | null, currency: string = "usd") {

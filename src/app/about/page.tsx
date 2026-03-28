@@ -8,7 +8,15 @@ import { getContent, cms } from "@/lib/cms"
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Learn about Ink2Screen LLC Publishing, founded by Sterling R. Smith — engineering narratives for readers and screen adaptation.",
+    "Meet Sterling R. Smith — engineer, author, and founder of Ink2Screen LLC Publishing. Our mission: cultivate authors and bring powerful stories to screen.",
+  openGraph: {
+    title: "About — Ink2Screen LLC Publishing",
+    description:
+      "Meet Sterling R. Smith — engineer, author, and founder of Ink2Screen LLC Publishing.",
+    url: "https://www.ink2screenllc.com/about",
+    images: [{ url: "/images/sterling-transparent.png", width: 1200, height: 630, alt: "Sterling R. Smith" }],
+  },
+  alternates: { canonical: "https://www.ink2screenllc.com/about" },
 }
 
 /* ─── Hero — Mission Statement ─── */

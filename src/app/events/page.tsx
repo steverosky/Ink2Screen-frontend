@@ -17,7 +17,14 @@ import { getContent, cms } from "@/lib/cms"
 export const metadata: Metadata = {
   title: "Events",
   description:
-    "Book signings, author talks, and the Ink & Indulgence experience series from Ink2Screen LLC Publishing.",
+    "Book signings, author talks, workshops, and the Ink & Indulgence cultural experience series from Ink2Screen LLC Publishing.",
+  openGraph: {
+    title: "Events — Ink2Screen LLC Publishing",
+    description: "Join us for book signings, author talks, and the Ink & Indulgence cultural experience. Houston & beyond.",
+    url: "https://www.ink2screenllc.com/events",
+    images: [{ url: "/images/book-spotlight.png", width: 1200, height: 630, alt: "Ink2Screen Events" }],
+  },
+  alternates: { canonical: "https://www.ink2screenllc.com/events" },
 }
 
 // --- Placeholder data for initial launch (before .NET backend is running) ---

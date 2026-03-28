@@ -1,13 +1,26 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Separator } from "@/components/ui/separator"
 import { AddToCartButton } from "./add-to-cart-button"
+import {
+  FacebookShareButton,
+  TwitterShareButton,
+  WhatsappShareButton,
+  FacebookIcon,
+  XIcon,
+  WhatsappIcon,
+} from "react-share"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function ProductDetailClient({ product }: { product: any }) {
   const [detailsOpen, setDetailsOpen] = useState(true)
   const [shippingOpen, setShippingOpen] = useState(false)
+  const [shareUrl, setShareUrl] = useState("")
+
+  useEffect(() => {
+    setShareUrl(window.location.href)
+  }, [])
 
   // Build details from Medusa product fields + metadata
   const metadata = product.metadata || {}
@@ -115,6 +128,23 @@ export function ProductDetailClient({ product }: { product: any }) {
             <p>Express delivery: 2-3 business days.</p>
           </div>
         )}
+
+        {/* Share */}
+        <Separator className="bg-[#333]" />
+        <div className="flex items-center gap-4">
+          <span className="text-sm font-semibold tracking-[0.1em] text-brand-gold">SHARE</span>
+          <div className="flex items-center gap-2">
+            <FacebookShareButton url={shareUrl} title={product.title}>
+              <FacebookIcon size={32} round bgStyle={{ fill: "#D4AF37" }} iconFillColor="#050505" />
+            </FacebookShareButton>
+            <TwitterShareButton url={shareUrl} title={product.title}>
+              <XIcon size={32} round bgStyle={{ fill: "#D4AF37" }} iconFillColor="#050505" />
+            </TwitterShareButton>
+            <WhatsappShareButton url={shareUrl} title={product.title}>
+              <WhatsappIcon size={32} round bgStyle={{ fill: "#D4AF37" }} iconFillColor="#050505" />
+            </WhatsappShareButton>
+          </div>
+        </div>
 
         {/* Bottom spacer for sticky calculation */}
         <div className="h-8" />

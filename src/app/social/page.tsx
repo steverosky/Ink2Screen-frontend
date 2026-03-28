@@ -5,7 +5,13 @@ import { getContent } from "@/lib/cms"
 
 export const metadata: Metadata = {
   title: "Social Hub",
-  description: "Follow Ink2Screen LLC Publishing on social media.",
+  description: "Follow Ink2Screen LLC Publishing on Instagram, TikTok, YouTube, and Twitter/X for the latest content, behind-the-scenes, and author insights.",
+  openGraph: {
+    title: "Social Hub — Ink2Screen LLC Publishing",
+    description: "Follow us on Instagram, TikTok, YouTube, and Twitter/X.",
+    url: "https://www.ink2screenllc.com/social",
+  },
+  alternates: { canonical: "https://www.ink2screenllc.com/social" },
 }
 
 function getSocials(c: Record<string, Record<string, Record<string, string>>>) {

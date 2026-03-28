@@ -4,6 +4,7 @@ export const metadata: Metadata = {
   title: "Legal — Terms & Conditions",
   description:
     "Ink2Screen LLC Publishing website legal framework, terms of service, privacy policy, and marketplace policy.",
+  alternates: { canonical: "https://www.ink2screenllc.com/terms" },
 }
 
 function SectionHeading({ id, number, title }: { id: string; number: string; title: string }) {

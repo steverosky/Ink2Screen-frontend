@@ -98,9 +98,22 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params
   const event = await getEventData(id)
+  if (!event) return { title: "Event Not Found", robots: { index: false } }
+
+  const description = event.description.slice(0, 160).replace(/\n/g, " ")
+  const ogImage = event.image_url || "/images/book-spotlight.png"
+  const url = `https://www.ink2screenllc.com/events/${id}`
+
   return {
-    title: event ? `${event.title} — Events` : "Event Not Found",
-    description: event?.description.slice(0, 160),
+    title: event.title,
+    description,
+    openGraph: {
+      title: `${event.title} — Ink2Screen Events`,
+      description,
+      url,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: event.title }],
+    },
+    alternates: { canonical: url },
   }
 }
 

@@ -52,11 +52,29 @@ function formatPrice(amount: number | undefined | null, currency: string = "usd"
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { handle } = await params
   const product = await getProduct(handle)
-  if (!product) return { title: "Product Not Found" }
+  if (!product) return { title: "Product Not Found", robots: { index: false } }
+
+  const price = product.variants?.[0]?.calculated_price?.calculated_amount
+  const ogImage = product.thumbnail || product.images?.[0]?.url || "/images/book-spotlight.png"
+  const url = `https://www.ink2screenllc.com/artefacts/${handle}`
 
   return {
     title: product.title,
-    description: product.description || undefined,
+    description: product.description || `Shop ${product.title} from Ink2Screen LLC Publishing.`,
+    openGraph: {
+      title: product.title,
+      description: product.description || `Shop ${product.title} from Ink2Screen LLC Publishing.`,
+      url,
+      type: "website",
+      images: [{ url: ogImage, width: 1200, height: 630, alt: product.title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.title,
+      description: product.description || `Shop ${product.title} from Ink2Screen LLC Publishing.`,
+      images: [ogImage],
+    },
+    alternates: { canonical: url },
   }
 }
 
@@ -220,8 +238,31 @@ export default async function ProductDetailPage({ params }: Props) {
 
   const recommended = await getRecommendedProducts(product.id)
 
+  const ogImage = product.thumbnail || product.images?.[0]?.url || "/images/book-spotlight.png"
+  const price = product.variants?.[0]?.calculated_price?.calculated_amount
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.title,
+    description: product.description,
+    image: ogImage,
+    url: `https://www.ink2screenllc.com/artefacts/${handle}`,
+    brand: { "@type": "Brand", name: "Ink2Screen LLC Publishing" },
+    offers: price != null ? {
+      "@type": "Offer",
+      price: price.toString(),
+      priceCurrency: "USD",
+      availability: "https://schema.org/InStock",
+      seller: { "@type": "Organization", name: "Ink2Screen LLC Publishing" },
+    } : undefined,
+  }
+
   return (
     <div className="bg-[#050505]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Main product area with texture bg */}
       <section className="relative overflow-hidden bg-[#121212]">
         <div className="absolute inset-0">

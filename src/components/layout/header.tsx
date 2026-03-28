@@ -3,13 +3,13 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { ShoppingCart, Menu, Search, User, LogOut, Heart } from "lucide-react"
+import { ShoppingCart, Menu, Search, User, LogOut, Heart, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Badge } from "@/components/ui/badge"
 import { useCartStore, useAuthStore } from "@/lib/store"
-import { useState, useEffect } from "react"
-import { sdk } from "@/lib/sdk"
+import { useState, useEffect, useRef, useCallback } from "react"
+import { sdk, getDefaultRegionId } from "@/lib/sdk"
 
 const navigation = [
   { label: "Home", href: "/" },
@@ -26,6 +26,12 @@ export function Header() {
   const [cartCount, setCartCount] = useState(0)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [searchResults, setSearchResults] = useState<any[]>([])
+  const [searchLoading, setSearchLoading] = useState(false)
+  const searchRef = useRef<HTMLDivElement>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Fetch cart count
   useEffect(() => {
@@ -64,6 +70,55 @@ export function Header() {
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  const runSearch = useCallback(async (q: string) => {
+    if (!q.trim()) {
+      setSearchResults([])
+      return
+    }
+    setSearchLoading(true)
+    try {
+      const regionId = await getDefaultRegionId()
+      const { products } = await sdk.store.product.list({
+        q,
+        limit: 6,
+        fields: "+variants.calculated_price",
+        region_id: regionId,
+      })
+      setSearchResults(products)
+    } catch {
+      setSearchResults([])
+    } finally {
+      setSearchLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      runSearch(searchQuery)
+    }, 300)
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
+  }, [searchQuery, runSearch])
+
+  // Close search results when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setSearchResults([])
+        setSearchQuery("")
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  function clearSearch() {
+    setSearchQuery("")
+    setSearchResults([])
+  }
 
   async function handleLogout() {
     try {
@@ -115,15 +170,66 @@ export function Header() {
           </Button>
 
           {/* Search Bar — Desktop */}
-          <div className="hidden lg:flex">
+          <div className="relative hidden lg:flex" ref={searchRef}>
             <div className="flex h-10 w-[296px] items-center gap-2 rounded-full border border-brand-gold bg-[#121212] px-3">
               <input
                 type="text"
-                placeholder="Search..."
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="flex-1 bg-transparent text-sm text-[#e0e0e0] placeholder:text-[#888] outline-none"
               />
-              <Search className="h-5 w-5 text-[#888]" />
+              {searchQuery ? (
+                <button onClick={clearSearch} className="text-[#888] hover:text-[#e0e0e0]">
+                  <X className="h-4 w-4" />
+                </button>
+              ) : (
+                <Search className="h-5 w-5 text-[#888]" />
+              )}
             </div>
+            {/* Search Dropdown */}
+            {(searchResults.length > 0 || searchLoading) && searchQuery && (
+              <div className="absolute left-0 top-12 z-50 w-[340px] overflow-hidden rounded-lg border border-brand-gold/20 bg-[#121212] shadow-xl">
+                {searchLoading ? (
+                  <div className="px-4 py-3 text-sm text-[#888]">Searching...</div>
+                ) : searchResults.length === 0 ? (
+                  <div className="px-4 py-3 text-sm text-[#888]">No results found.</div>
+                ) : (
+                  <ul>
+                    {searchResults.map((product) => {
+                      const price = product.variants?.[0]?.calculated_price?.calculated_amount
+                      return (
+                        <li key={product.id}>
+                          <Link
+                            href={`/artefacts/${product.handle}`}
+                            onClick={clearSearch}
+                            className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-white/5"
+                          >
+                            {product.thumbnail && (
+                              <Image
+                                src={product.thumbnail}
+                                alt={product.title}
+                                width={36}
+                                height={36}
+                                className="h-9 w-9 shrink-0 rounded object-cover"
+                              />
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-sm font-semibold text-[#e0e0e0]">{product.title}</p>
+                              {price != null && (
+                                <p className="text-xs text-brand-gold">
+                                  {new Intl.NumberFormat("en-US", { style: "currency", currency: "usd" }).format(price)}
+                                </p>
+                              )}
+                            </div>
+                          </Link>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Mobile Search */}
@@ -309,12 +415,62 @@ export function Header() {
           <div className="flex h-10 items-center gap-2 rounded-full border border-brand-gold bg-[#121212] px-3">
             <input
               type="text"
-              placeholder="Search..."
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-1 bg-transparent text-sm text-[#e0e0e0] placeholder:text-[#888] outline-none"
               autoFocus
             />
-            <Search className="h-5 w-5 text-[#888]" />
+            {searchQuery ? (
+              <button onClick={clearSearch} className="text-[#888]">
+                <X className="h-4 w-4" />
+              </button>
+            ) : (
+              <Search className="h-5 w-5 text-[#888]" />
+            )}
           </div>
+          {searchQuery && (
+            <div className="mt-2 overflow-hidden rounded-lg border border-brand-gold/20 bg-[#121212]">
+              {searchLoading ? (
+                <div className="px-4 py-3 text-sm text-[#888]">Searching...</div>
+              ) : searchResults.length === 0 ? (
+                <div className="px-4 py-3 text-sm text-[#888]">No results found.</div>
+              ) : (
+                <ul>
+                  {searchResults.map((product) => {
+                    const price = product.variants?.[0]?.calculated_price?.calculated_amount
+                    return (
+                      <li key={product.id}>
+                        <Link
+                          href={`/artefacts/${product.handle}`}
+                          onClick={() => { clearSearch(); setSearchOpen(false) }}
+                          className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-white/5"
+                        >
+                          {product.thumbnail && (
+                            <Image
+                              src={product.thumbnail}
+                              alt={product.title}
+                              width={36}
+                              height={36}
+                              className="h-9 w-9 shrink-0 rounded object-cover"
+                            />
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-semibold text-[#e0e0e0]">{product.title}</p>
+                            {price != null && (
+                              <p className="text-xs text-brand-gold">
+                                {new Intl.NumberFormat("en-US", { style: "currency", currency: "usd" }).format(price)}
+                              </p>
+                            )}
+                          </div>
+                        </Link>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+            </div>
+          )}
         </div>
       )}
     </header>

@@ -177,9 +177,42 @@ function StripePaymentForm({
 
 // --- Order Sidebar (Right Panel — Frame 92) ---
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function OrderSidebar({ cart }: { cart: any }) {
+function OrderSidebar({ cart, cartId, onCartUpdate }: { cart: any; cartId: string; onCartUpdate: () => void }) {
   const items = cart?.items || []
+  const promotions: { code: string }[] = cart?.promotions || []
   const [discountCode, setDiscountCode] = useState("")
+  const [promoLoading, setPromoLoading] = useState(false)
+  const [promoError, setPromoError] = useState("")
+  const [promoSuccess, setPromoSuccess] = useState("")
+
+  async function applyPromoCode() {
+    const code = discountCode.trim()
+    if (!code || !cartId) return
+    setPromoLoading(true)
+    setPromoError("")
+    setPromoSuccess("")
+    try {
+      await sdk.store.cart.addPromotions(cartId, { promo_codes: [code] })
+      setDiscountCode("")
+      setPromoSuccess(`"${code}" applied.`)
+      onCartUpdate()
+    } catch {
+      setPromoError("Invalid or expired code.")
+    } finally {
+      setPromoLoading(false)
+    }
+  }
+
+  async function removePromoCode(code: string) {
+    if (!cartId) return
+    try {
+      await sdk.store.cart.deletePromotions(cartId, { promo_codes: [code] })
+      setPromoSuccess("")
+      onCartUpdate()
+    } catch {
+      // Silently ignore removal errors
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -241,20 +274,60 @@ function OrderSidebar({ cart }: { cart: any }) {
         )}
       </div>
 
-      {/* Discount Code */}
-      <div className="flex gap-4">
-        <div className="flex-1">
-          <CheckoutInput
-            placeholder="Gift card or discount code"
-            value={discountCode}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setDiscountCode(e.target.value)
-            }
-          />
+      {/* Applied promotions */}
+      {promotions.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {promotions.map((promo) => (
+            <span
+              key={promo.code}
+              className="flex items-center gap-1.5 rounded-sm border border-brand-gold/40 bg-brand-gold/10 px-2 py-1 font-body text-xs font-semibold text-brand-gold"
+            >
+              {promo.code}
+              <button
+                type="button"
+                onClick={() => removePromoCode(promo.code)}
+                className="ml-0.5 text-brand-gold/60 hover:text-brand-gold"
+                aria-label={`Remove ${promo.code}`}
+              >
+                ×
+              </button>
+            </span>
+          ))}
         </div>
-        <Button className="h-12 rounded-none bg-brand-gold px-8 font-body text-sm font-bold uppercase tracking-widest text-background hover:bg-brand-gold/90">
-          APPLY
-        </Button>
+      )}
+
+      {/* Discount Code Input */}
+      <div className="space-y-2">
+        <div className="flex gap-4">
+          <div className="flex-1">
+            <CheckoutInput
+              placeholder="Gift card or discount code"
+              value={discountCode}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setDiscountCode(e.target.value)
+                setPromoError("")
+                setPromoSuccess("")
+              }}
+              onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                if (e.key === "Enter") applyPromoCode()
+              }}
+            />
+          </div>
+          <Button
+            type="button"
+            onClick={applyPromoCode}
+            disabled={promoLoading || !discountCode.trim()}
+            className="h-12 rounded-none bg-brand-gold px-8 font-body text-sm font-bold uppercase tracking-widest text-background hover:bg-brand-gold/90 disabled:opacity-50"
+          >
+            {promoLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "APPLY"}
+          </Button>
+        </div>
+        {promoError && (
+          <p className="font-body text-xs text-destructive">{promoError}</p>
+        )}
+        {promoSuccess && (
+          <p className="font-body text-xs text-brand-gold">{promoSuccess}</p>
+        )}
       </div>
 
       {/* Totals */}
@@ -264,6 +337,12 @@ function OrderSidebar({ cart }: { cart: any }) {
             <span>Subtotal</span>
             <span>{formatPrice(cart.item_subtotal, cart.currency_code)}</span>
           </div>
+          {cart.discount_total > 0 && (
+            <div className="flex items-center justify-between text-brand-gold">
+              <span>Discount</span>
+              <span>-{formatPrice(cart.discount_total, cart.currency_code)}</span>
+            </div>
+          )}
           <div className="flex items-center justify-between">
             <span>Shipping</span>
             <span>
@@ -915,7 +994,7 @@ export function CheckoutForm() {
       {/* ====== RIGHT — Sticky Order Summary (Frame 92) ====== */}
       <div className="border-t border-[#888]/20 bg-card px-6 py-10 lg:sticky lg:top-0 lg:h-screen lg:w-[47%] lg:max-w-[680px] lg:overflow-y-auto lg:border-l lg:border-t-0 lg:px-20 lg:py-20">
         <div className="mx-auto max-w-[400px]">
-          <OrderSidebar cart={cart} />
+          <OrderSidebar cart={cart} cartId={cartId ?? ""} onCartUpdate={loadCart} />
         </div>
       </div>
     </div>
