@@ -1,13 +1,12 @@
 /**
  * Events API Client
- * Connects to the ASP.NET Core backend for event management.
+ * Calls the Medusa backend store routes — no longer talks directly to .NET.
  * Prices are stored as-is (49.99 = $49.99, never divide by 100).
  */
 
-const EVENTS_API_URL =
-  process.env.NEXT_PUBLIC_EVENTS_API_URL || "http://localhost:5285"
+import { sdk } from "./sdk"
 
-// --- Types (matching .NET DTO snake_case) ---
+// --- Types ---
 
 export interface EventListItem {
   id: string
@@ -104,45 +103,31 @@ export type EventStatus =
 
 // --- API Functions ---
 
-async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${EVENTS_API_URL}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  })
-
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({ error: "Request failed" }))
-    throw new Error(error.error || `API error: ${res.status}`)
-  }
-
-  return res.json()
-}
-
 export async function getUpcomingEvents(): Promise<EventListItem[]> {
-  return fetchApi<EventListItem[]>("/api/events")
+  return sdk.client.fetch<EventListItem[]>("/store/events", { method: "GET" })
 }
 
 export async function getEvent(id: string): Promise<EventDetail> {
-  return fetchApi<EventDetail>(`/api/events/${id}`)
+  return sdk.client.fetch<EventDetail>(`/store/events/${id}`, { method: "GET" })
 }
 
 export async function getCalendarEvents(
   year: number,
   month: number
 ): Promise<CalendarMonth> {
-  return fetchApi<CalendarMonth>(`/api/events/calendar/${year}/${month}`)
+  return sdk.client.fetch<CalendarMonth>(
+    `/store/events/calendar/${year}/${month}`,
+    { method: "GET" }
+  )
 }
 
 export async function registerForEvent(
   eventId: string,
   data: RegisterRequest
 ): Promise<Registration> {
-  return fetchApi<Registration>(`/api/events/${eventId}/register`, {
+  return sdk.client.fetch<Registration>(`/store/events/${eventId}/register`, {
     method: "POST",
-    body: JSON.stringify(data),
+    body: data,
   })
 }
 
@@ -150,13 +135,10 @@ export async function cancelRegistration(
   registrationId: string,
   email: string
 ): Promise<void> {
-  const res = await fetch(
-    `${EVENTS_API_URL}/api/events/registrations/${registrationId}?email=${encodeURIComponent(email)}`,
+  await sdk.client.fetch(
+    `/store/events/registrations/${registrationId}?email=${encodeURIComponent(email)}`,
     { method: "DELETE" }
   )
-  if (!res.ok) {
-    throw new Error("Failed to cancel registration")
-  }
 }
 
 // --- Helpers ---

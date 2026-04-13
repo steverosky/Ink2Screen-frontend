@@ -70,8 +70,7 @@ export function EventRegistrationForm({ event }: { event: EventDetail }) {
     firstName.trim() &&
     lastName.trim() &&
     email.includes("@") &&
-    waiverAccepted &&
-    mediaReleaseAccepted &&
+    (!event.requires_waiver || (waiverAccepted && mediaReleaseAccepted)) &&
     quantity >= 1 &&
     quantity <= maxQuantity
 
@@ -181,6 +180,11 @@ export function EventRegistrationForm({ event }: { event: EventDetail }) {
           Edit details
         </button>
 
+        <div className="mb-3 flex items-center gap-2">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[#555]">Step 1</span>
+          <span className="text-[10px] text-[#333]">—</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-brand-gold">Step 2: Payment</span>
+        </div>
         <h3 className="mb-1 font-heading text-xl font-bold tracking-tight text-[#e0e0e0]">
           PAYMENT
         </h3>
@@ -217,7 +221,7 @@ export function EventRegistrationForm({ event }: { event: EventDetail }) {
         />
 
         {status === "error" && (
-          <p className="mt-3 text-center text-xs text-red-400">{errorMsg}</p>
+          <p role="alert" className="mt-3 text-center text-xs text-red-400">{errorMsg}</p>
         )}
       </div>
     )
@@ -229,6 +233,11 @@ export function EventRegistrationForm({ event }: { event: EventDetail }) {
       onSubmit={handleSubmit}
       className="rounded-[10px] border border-[#222] bg-[#121212] p-6 md:p-8"
     >
+      <div className="mb-3 flex items-center gap-2">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-brand-gold">Step 1: Details</span>
+        <span className="text-[10px] text-[#333]">—</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-[#555]">{event.is_free ? "Register" : "Step 2: Payment"}</span>
+      </div>
       <h3 className="mb-6 font-heading text-xl font-bold tracking-tight text-[#e0e0e0]">
         REGISTER
       </h3>
@@ -241,6 +250,7 @@ export function EventRegistrationForm({ event }: { event: EventDetail }) {
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             autoComplete="given-name"
+            aria-required="true"
             required
           />
           <FormInput
@@ -248,6 +258,7 @@ export function EventRegistrationForm({ event }: { event: EventDetail }) {
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
             autoComplete="family-name"
+            aria-required="true"
             required
           />
         </div>
@@ -259,6 +270,7 @@ export function EventRegistrationForm({ event }: { event: EventDetail }) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           autoComplete="email"
+          aria-required="true"
           required
         />
 
@@ -279,7 +291,8 @@ export function EventRegistrationForm({ event }: { event: EventDetail }) {
               type="button"
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
               disabled={quantity <= 1}
-              className="flex h-8 w-8 items-center justify-center rounded-sm border border-[#333] text-[#888] transition-colors hover:border-brand-gold hover:text-brand-gold disabled:opacity-30"
+              aria-label="Decrease ticket quantity"
+              className="flex h-11 w-11 items-center justify-center rounded-sm border border-[#333] text-[#888] transition-colors hover:border-brand-gold hover:text-brand-gold disabled:opacity-30"
             >
               <Minus className="h-3.5 w-3.5" />
             </button>
@@ -290,7 +303,8 @@ export function EventRegistrationForm({ event }: { event: EventDetail }) {
               type="button"
               onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
               disabled={quantity >= maxQuantity}
-              className="flex h-8 w-8 items-center justify-center rounded-sm border border-[#333] text-[#888] transition-colors hover:border-brand-gold hover:text-brand-gold disabled:opacity-30"
+              aria-label="Increase ticket quantity"
+              className="flex h-11 w-11 items-center justify-center rounded-sm border border-[#333] text-[#888] transition-colors hover:border-brand-gold hover:text-brand-gold disabled:opacity-30"
             >
               <Plus className="h-3.5 w-3.5" />
             </button>
@@ -372,7 +386,7 @@ export function EventRegistrationForm({ event }: { event: EventDetail }) {
 
         {/* Error */}
         {status === "error" && (
-          <p className="text-center text-xs text-red-400">{errorMsg}</p>
+          <p role="alert" className="text-center text-xs text-red-400">{errorMsg}</p>
         )}
 
         {/* Submit */}
