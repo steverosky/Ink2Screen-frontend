@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/footer"
 import { ConsentBanner } from "@/components/consent-banner"
 import { ContentProtection } from "@/components/content-protection"
 import { Analytics } from "@/components/analytics"
+import { Analytics as VercelAnalytics } from "@vercel/analytics/next"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -107,6 +108,7 @@ export default function RootLayout({
         <ConsentBanner />
         <ContentProtection />
         <Analytics />
+        <VercelAnalytics />
       </body>
     </html>
   )
