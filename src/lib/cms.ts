@@ -5,7 +5,7 @@ type ContentMap = Record<string, Record<string, Record<string, string>>>
 
 let contentCache: ContentMap | null = null
 let cacheTimestamp = 0
-const CACHE_TTL = 60_000 // 1 minute
+const CACHE_TTL = 30_000 // 30 seconds
 
 /**
  * Fetch all CMS content from the Medusa store API.
