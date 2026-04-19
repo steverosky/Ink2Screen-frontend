@@ -1,50 +1,33 @@
-import { sdk } from "./sdk"
-
-// Structured content: { page: { section: { key: value } } }
 type ContentMap = Record<string, Record<string, Record<string, string>>>
 
-let contentCache: ContentMap | null = null
-let cacheTimestamp = 0
-const CACHE_TTL = 30_000 // 30 seconds
+const MEDUSA_URL =
+  process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"
+const PUB_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || ""
 
 /**
- * Fetch all CMS content from the Medusa store API.
- * Results are cached in memory for CACHE_TTL ms.
+ * Fetch CMS content from Medusa.
+ * Uses Next.js Data Cache tagged "cms" — revalidates every 60s automatically,
+ * or immediately when the admin saves (via POST /api/revalidate → revalidateTag("cms")).
  */
-export async function getContent(
-  page?: string
-): Promise<ContentMap> {
-  const now = Date.now()
-
-  if (contentCache && now - cacheTimestamp < CACHE_TTL) {
-    if (page && contentCache[page]) {
-      return { [page]: contentCache[page] }
-    }
-    return contentCache
-  }
+export async function getContent(page?: string): Promise<ContentMap> {
+  const query = page ? `?page=${encodeURIComponent(page)}` : ""
 
   try {
-    const query = page ? `?page=${encodeURIComponent(page)}` : ""
-    const result = await sdk.client.fetch<{
-      content: ContentMap
-    }>(`/store/content${query}`, { method: "GET" })
+    const res = await fetch(`${MEDUSA_URL}/store/content${query}`, {
+      headers: { "x-publishable-api-key": PUB_KEY },
+      next: { revalidate: 60 },
+    })
 
-    if (!page) {
-      // Full fetch — cache everything
-      contentCache = result.content
-      cacheTimestamp = now
-    }
-
-    return result.content
+    if (!res.ok) return {}
+    const data = (await res.json()) as { content: ContentMap }
+    return data.content ?? {}
   } catch {
-    // If CMS is unavailable, return empty — fallback defaults will be used
     return {}
   }
 }
 
 /**
  * Get a single CMS value with a fallback default.
- * Use this in page components:
  *
  * ```ts
  * const content = await getContent("home")
@@ -62,14 +45,10 @@ export function cms(
 }
 
 /**
- * Helper to get all keys in a section as an object with fallbacks.
+ * Get all keys in a section as an object with fallbacks.
  *
  * ```ts
- * const hero = cmsSection(content, "home", "hero", {
- *   title: "DEFAULT TITLE",
- *   description: "DEFAULT DESC",
- * })
- * // hero.title, hero.description — uses CMS values or defaults
+ * const hero = cmsSection(content, "home", "hero", { title: "DEFAULT", description: "DEFAULT" })
  * ```
  */
 export function cmsSection<T extends Record<string, string>>(
@@ -86,13 +65,4 @@ export function cmsSection<T extends Record<string, string>>(
     }
   }
   return result
-}
-
-/**
- * Invalidate the in-memory cache.
- * Useful after admin updates content and user refreshes.
- */
-export function invalidateContentCache() {
-  contentCache = null
-  cacheTimestamp = 0
 }
