@@ -109,27 +109,16 @@ function EngineerAuthorSection({ c }: { c: Record<string, Record<string, Record<
 
           <div className="flex flex-col gap-4 text-base font-light leading-relaxed text-[#e0e0e0] sm:text-lg md:gap-5 md:text-xl md:leading-[1.6]">
             <p>
-              Sterling R. Smith founded Ink2Screen from a simple place — he had
-              the idea. He is not driven by trends or reaction. His focus is
-              straightforward: build a successful brand rooted in integrity and
-              long-term influence.
+              {cms(c, "about", "founder", "bio_paragraph_1", "Sterling R. Smith founded Ink2Screen from a simple place — he had the idea. He is not driven by trends or reaction. His focus is straightforward: build a successful brand rooted in integrity and long-term influence.")}
             </p>
             <p>
-              With a professional background in engineering, Sterling approaches
-              creative work with discipline and structure. He believes ideas
-              deserve thoughtful development and intentional execution — not
-              just exposure.
+              {cms(c, "about", "founder", "bio_paragraph_2", "With a professional background in engineering, Sterling approaches creative work with discipline and structure. He believes ideas deserve thoughtful development and intentional execution — not just exposure.")}
             </p>
             <p>
-              High-quality stories — the kind that move communities, elevate
-              perspective, and present people in a stronger light — often
-              struggle to move across mediums. Ink2Screen exists to bridge that
-              gap.
+              {cms(c, "about", "founder", "bio_paragraph_3", "High-quality stories — the kind that move communities, elevate perspective, and present people in a stronger light — often struggle to move across mediums. Ink2Screen exists to bridge that gap.")}
             </p>
             <p>
-              He is building a platform centered on publishing, production, and
-              literary events — with integrity at its core and influence as its
-              outcome.
+              {cms(c, "about", "founder", "bio_paragraph_4", "He is building a platform centered on publishing, production, and literary events — with integrity at its core and influence as its outcome.")}
             </p>
           </div>
         </div>
@@ -142,7 +131,7 @@ function EngineerAuthorSection({ c }: { c: Record<string, Record<string, Record<
           {/* Portrait */}
           <div className="relative h-full w-full max-w-[540px] pt-8">
             <Image
-              src="/images/sterling-portrait.jpg"
+              src={cms(c, "about", "founder", "portrait_image", "/images/sterling-portrait.jpg")}
               alt="Sterling R. Smith"
               fill
               sizes="(max-width: 768px) 100vw, 540px"

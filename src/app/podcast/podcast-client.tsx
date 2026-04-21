@@ -29,6 +29,90 @@ function formatTime(s: number): string {
   return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`
 }
 
+/* Resolve a track `src` into an iframe embed descriptor, or null for plain audio files.
+   Supports YouTube, Spotify, Apple Podcasts, SoundCloud, Amazon Music, iHeartRadio, and Buzzsprout. */
+type EmbedKind = "youtube" | "spotify" | "apple" | "soundcloud" | "amazon" | "iheart" | "buzzsprout"
+type Embed = { kind: EmbedKind; src: string; height: number; aspect?: string } | null
+
+function resolveEmbed(input: string): Embed {
+  if (!input) return null
+  const v = input.trim()
+
+  // YouTube: watch, youtu.be, shorts, embed, live
+  if (/youtu\.?be/i.test(v)) {
+    const id =
+      v.match(/youtu\.be\/([A-Za-z0-9_-]{6,})/)?.[1] ||
+      v.match(/[?&]v=([A-Za-z0-9_-]{6,})/)?.[1] ||
+      v.match(/\/(?:embed|shorts|v|live)\/([A-Za-z0-9_-]{6,})/)?.[1]
+    if (id) {
+      return {
+        kind: "youtube",
+        src: `https://www.youtube-nocookie.com/embed/${id}?rel=0&modestbranding=1`,
+        height: 0,
+        aspect: "16 / 9",
+      }
+    }
+  }
+
+  // Spotify: episode, track, show, playlist, album
+  if (/open\.spotify\.com/i.test(v)) {
+    const m = v.match(/open\.spotify\.com\/(?:embed\/)?(episode|track|show|playlist|album)\/([A-Za-z0-9]+)/i)
+    if (m) {
+      return { kind: "spotify", src: `https://open.spotify.com/embed/${m[1]}/${m[2]}`, height: 232 }
+    }
+  }
+
+  // Apple Podcasts: swap host to the embed host, keep path/query (so `?i=EPISODE_ID` still picks the episode)
+  if (/podcasts\.apple\.com/i.test(v)) {
+    try {
+      const u = new URL(v)
+      u.host = "embed.podcasts.apple.com"
+      const isEpisode = u.searchParams.has("i")
+      return { kind: "apple", src: u.toString(), height: isEpisode ? 175 : 450 }
+    } catch {
+      return null
+    }
+  }
+
+  // SoundCloud: wrap the public URL in the widget player
+  if (/soundcloud\.com/i.test(v)) {
+    const src =
+      `https://w.soundcloud.com/player/?url=${encodeURIComponent(v)}` +
+      `&color=%23D4AF37&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false`
+    return { kind: "soundcloud", src, height: 166 }
+  }
+
+  // Amazon Music podcasts — podcasts/SHOW_ID/episodes/EPISODE_ID
+  if (/music\.amazon\.(com|co\.[a-z]+|[a-z]+)/i.test(v)) {
+    const ep = v.match(/\/podcasts\/[^/]+\/episodes\/([A-Za-z0-9-]+)/i)
+    if (ep) {
+      return { kind: "amazon", src: `https://music.amazon.com/embed/${ep[1]}`, height: 200 }
+    }
+    const show = v.match(/\/podcasts\/([A-Za-z0-9-]+)/i)
+    if (show) {
+      return { kind: "amazon", src: `https://music.amazon.com/embed/${show[1]}`, height: 200 }
+    }
+  }
+
+  // iHeartRadio: iheart.com/podcast/.../episode/...-ID/
+  if (/iheart\.com/i.test(v)) {
+    const ep = v.match(/\/episode\/[^/]*?-(\d+)\/?/i)
+    if (ep) {
+      return { kind: "iheart", src: `https://www.iheart.com/podcast/episode/${ep[1]}/?embed=true`, height: 200 }
+    }
+  }
+
+  // Buzzsprout: buzzsprout.com/ACCOUNT/episodes/EPISODE_ID(-slug)
+  if (/buzzsprout\.com/i.test(v)) {
+    const m = v.match(/buzzsprout\.com\/(\d+)\/(?:episodes\/)?(\d+)/i)
+    if (m) {
+      return { kind: "buzzsprout", src: `https://www.buzzsprout.com/${m[1]}/${m[2]}?client_source=small_player&iframe=true`, height: 200 }
+    }
+  }
+
+  return null
+}
+
 function WaveformBars({ playing }: { playing: boolean }) {
   const delays = ["0s", "0.2s", "0.1s", "0.3s"]
   return (
@@ -79,6 +163,8 @@ export function PodcastClient({
   const labels = ["ALL", ...Array.from(new Set(tracks.map((t) => t.label)))]
   const filteredTracks = filter === "ALL" ? tracks : tracks.filter((t) => t.label === filter)
   const activeTrack = tracks[activeIdx]
+  const activeEmbed = resolveEmbed(activeTrack.src)
+  const isEmbedTrack = !!activeEmbed
   const progress = audioDuration > 0 ? (currentTime / audioDuration) * 100 : 0
 
   useEffect(() => {
@@ -107,10 +193,21 @@ export function PodcastClient({
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
-    audio.src = tracks[activeIdx].src
-    audio.load()
+    const nextSrc = tracks[activeIdx].src
+    const isEmbed = !!resolveEmbed(nextSrc)
     setCurrentTime(0)
     setAudioDuration(0)
+    if (isEmbed) {
+      audio.pause()
+      audio.removeAttribute("src")
+      audio.load()
+      // Embedded iframe handles its own playback; don't autoplay HTML5 audio.
+      shouldPlayRef.current = false
+      setPlaying(false)
+      return
+    }
+    audio.src = nextSrc
+    audio.load()
     if (shouldPlayRef.current) {
       shouldPlayRef.current = false
       audio.play().catch(() => setPlaying(false))
@@ -236,6 +333,52 @@ export function PodcastClient({
             <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-brand-purple/20 blur-[80px]" />
             <div className="pointer-events-none absolute -bottom-8 -left-8 h-40 w-40 rounded-full bg-brand-gold/10 blur-[60px]" />
 
+            {activeEmbed ? (
+              <div className="relative flex flex-col gap-4 p-4 sm:p-6 md:p-8">
+                <div>
+                  <p className="mb-1 text-[10px] font-bold tracking-[0.25em] text-[#555]">NOW PLAYING</p>
+                  {activeTrack.label && (
+                    <span className={cn("mb-2 inline-block rounded-sm px-2 py-0.5 text-[10px] font-bold tracking-widest", getLabelStyle(activeTrack.label))}>
+                      {activeTrack.label}
+                    </span>
+                  )}
+                  <h2 className="font-heading text-lg font-bold text-[#f0f0f0] sm:text-xl md:text-2xl">
+                    {activeTrack.title}
+                  </h2>
+                  {activeTrack.description && (
+                    <p className="mt-1.5 line-clamp-2 text-sm leading-[1.6] text-[#666]">
+                      {activeTrack.description}
+                    </p>
+                  )}
+                </div>
+                {activeEmbed.aspect ? (
+                  <div className="relative w-full overflow-hidden rounded-xl bg-black ring-1 ring-brand-gold/20" style={{ aspectRatio: activeEmbed.aspect }}>
+                    <iframe
+                      key={activeEmbed.src}
+                      src={activeEmbed.src}
+                      title={activeTrack.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                      allowFullScreen
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full border-0"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-full overflow-hidden rounded-xl ring-1 ring-brand-gold/20">
+                    <iframe
+                      key={activeEmbed.src}
+                      src={activeEmbed.src}
+                      title={activeTrack.title}
+                      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                      allowFullScreen
+                      loading="lazy"
+                      style={{ height: activeEmbed.height }}
+                      className="w-full border-0"
+                    />
+                  </div>
+                )}
+              </div>
+            ) : (
             <div className="relative flex flex-col gap-5 p-4 sm:gap-6 sm:p-6 md:flex-row md:items-center md:gap-8 md:p-8">
               {/* Album art — smaller on mobile, centered; left-aligned on md+ */}
               <div className="relative mx-auto h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-gradient-to-br from-brand-purple/40 via-[#1a1a1a] to-brand-gold/10 ring-1 ring-brand-gold/20 sm:h-32 sm:w-32 md:mx-0 md:h-40 md:w-40">
@@ -346,6 +489,7 @@ export function PodcastClient({
                 </div>
               </div>
             </div>
+            )}
           </div>
         </div>
       </section>

@@ -5,6 +5,32 @@ import { Input } from "@/components/ui/input"
 import { getContent } from "@/lib/cms"
 import { SocialFeedSection } from "@/components/social-feed"
 
+/* Extract a YouTube video ID from a raw ID or any common URL form. */
+function parseYoutubeId(input?: string): string {
+  if (!input) return ""
+  const v = input.trim()
+  if (!v || v.startsWith("/")) return ""
+  if (!/[/.?=]/.test(v)) return v
+  const short = v.match(/youtu\.be\/([A-Za-z0-9_-]{6,})/)
+  if (short) return short[1]
+  const watch = v.match(/[?&]v=([A-Za-z0-9_-]{6,})/)
+  if (watch) return watch[1]
+  const path = v.match(/\/(?:embed|shorts|v|live)\/([A-Za-z0-9_-]{6,})/)
+  if (path) return path[1]
+  return ""
+}
+
+/* Extract a TikTok numeric video ID from an ID or any common URL form. */
+function parseTiktokId(input?: string): string {
+  if (!input) return ""
+  const v = input.trim()
+  if (!v || v.startsWith("/")) return ""
+  if (/^\d{6,}$/.test(v)) return v
+  const m = v.match(/\/video\/(\d+)/)
+  if (m) return m[1]
+  return ""
+}
+
 /* ─── Hero Section ─── */
 function HeroSection({
   c,
@@ -14,6 +40,12 @@ function HeroSection({
   const hero = c.hero || {}
 
   const superscript = hero.superscript || "INK2SCREEN PRESENTS"
+  const headline_line_1 = hero.headline_line_1 || "EVERY STORY HAS A PURPOSE."
+  const headline_line_2_prefix = hero.headline_line_2_prefix || "WE ADD "
+  const headline_accent_1 = hero.headline_accent_1 || "POWER"
+  const headline_line_2_middle = hero.headline_line_2_middle || " AND "
+  const headline_accent_2 = hero.headline_accent_2 || "PASSION"
+  const headline_line_2_suffix = hero.headline_line_2_suffix || "."
   const description =
     hero.description ||
     "Raison D'etre is the debut novel from author and engineer Sterling R. Smith. A bold psychological journey developed through Ink2Screen, where powerful stories are built for both readers and future screen adaptation."
@@ -24,6 +56,8 @@ function HeroSection({
   const footer_text =
     hero.footer_text ||
     "DEBUT NOVEL: RAISON D'ETRE  |  CREATED BY INK2SCREEN  |  STORIES ENGINEERED"
+  const book_art_image = hero.book_art_image || "/images/hero-book-art.png"
+  const book_cover_image = hero.book_cover_image || "/images/book-cover-back.png"
 
   return (
     <section className="relative min-h-[580px] overflow-hidden sm:h-[720px] sm:min-h-0">
@@ -49,13 +83,13 @@ function HeroSection({
               {superscript}
             </p>
             <h1 className="font-heading text-3xl font-bold leading-[1.3] tracking-tight text-[#e0e0e0] sm:text-4xl md:text-5xl">
-              EVERY STORY HAS A PURPOSE.
+              {headline_line_1}
               <br />
-              <span>WE ADD </span>
-              <span className="text-brand-gold">POWER</span>
-              <span> AND </span>
-              <span className="text-brand-gold">PASSION</span>
-              <span>.</span>
+              <span>{headline_line_2_prefix}</span>
+              <span className="text-brand-gold">{headline_accent_1}</span>
+              <span>{headline_line_2_middle}</span>
+              <span className="text-brand-gold">{headline_accent_2}</span>
+              <span>{headline_line_2_suffix}</span>
             </h1>
           </div>
 
@@ -89,7 +123,7 @@ function HeroSection({
         <div className="hidden h-full w-1/2 items-center justify-center lg:flex">
           <div className="absolute right-0 top-[125px] h-[760px] w-[850px]">
             <Image
-              src="/images/hero-book-art.png"
+              src={book_art_image}
               alt=""
               width={850}
               height={760}
@@ -101,7 +135,7 @@ function HeroSection({
           </div>
           <div className="relative h-[660px] w-[500px]">
             <Image
-              src="/images/book-cover-back.png"
+              src={book_cover_image}
               alt="Raison D'etre book cover"
               fill
               sizes="500px"
@@ -189,6 +223,8 @@ function BookSpotlightSection({
     "A psychological deep dive into the human condition. Sterling R. Smith's debut novel challenges the boundaries of purpose and existence. Available in Hardcover and Digital formats."
   const cta_primary_text = s.cta_primary_text || "ORDER HARDCOVER"
   const cta_secondary_text = s.cta_secondary_text || "READ THE FIRST CHAPTER"
+  const front_image = s.front_image || "/images/book-spotlight.png"
+  const back_image = s.back_image || "/images/book-cover-back.png"
 
   return (
     <section className="relative overflow-hidden bg-[#121212]">
@@ -246,7 +282,7 @@ function BookSpotlightSection({
           <div className="relative flex items-center">
             <div className="relative -mr-3 h-[270px] w-[160px] sm:-mr-4 sm:h-[380px] sm:w-[225px] md:-mr-5 md:h-[525px] md:w-[311px]">
               <Image
-                src="/images/book-spotlight.png"
+                src={front_image}
                 alt="Raison D'etre hardcover"
                 fill
                 sizes="(max-width: 640px) 160px, (max-width: 768px) 225px, 311px"
@@ -255,7 +291,7 @@ function BookSpotlightSection({
             </div>
             <div className="relative -ml-3 h-[270px] w-[185px] sm:-ml-4 sm:h-[380px] sm:w-[260px] md:-ml-5 md:h-[525px] md:w-[357px]">
               <Image
-                src="/images/book-cover-back.png"
+                src={back_image}
                 alt="Raison D'etre back cover"
                 fill
                 sizes="(max-width: 640px) 185px, (max-width: 768px) 260px, 357px"
@@ -283,10 +319,10 @@ function TheFeedSection({
     "Behind the scenes, author insights, and visual storytelling."
   const cta_text = f.cta_text || "FOLLOW @INK2SCREEN"
   const cta_link = f.cta_link || "https://instagram.com/ink2screen"
-  const youtube_id = f.youtube_video && !f.youtube_video.startsWith("/") ? f.youtube_video : "D9Ihs241zeg"
+  const youtube_id = parseYoutubeId(f.youtube_video) || "D9Ihs241zeg"
   const youtube_label = f.youtube_label || "Author Insights"
   const youtube_channel = f.youtube_channel || "https://youtube.com/@Ink2ScreenLLC"
-  const tiktok_id = f.tiktok_video && !f.tiktok_video.startsWith("/") ? f.tiktok_video : "7578671437095963935"
+  const tiktok_id = parseTiktokId(f.tiktok_video) || "7578671437095963935"
   const tiktok_label = f.tiktok_label || "Behind the Scenes"
   const tiktok_channel = f.tiktok_channel || "https://tiktok.com/@ink2screen"
 
