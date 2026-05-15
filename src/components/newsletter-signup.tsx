@@ -5,6 +5,7 @@ import Link from "next/link"
 import { CheckSquare, Square, Loader2, Check } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { sdk } from "@/lib/sdk"
 
 export function NewsletterSignup() {
   const [email, setEmail] = useState("")
@@ -22,15 +23,20 @@ export function NewsletterSignup() {
     setErrorMsg("")
 
     try {
-      // TODO: Replace with real newsletter API endpoint (e.g. Mailchimp, SendGrid, or custom Medusa route)
-      // For now, simulate a successful signup
-      await new Promise((resolve) => setTimeout(resolve, 800))
+      await sdk.client.fetch("/store/newsletter", {
+        method: "POST",
+        body: { email: email.trim(), consent: true, source: "footer" },
+      })
       setStatus("success")
       setEmail("")
       setConsent(false)
-    } catch {
+    } catch (err) {
       setStatus("error")
-      setErrorMsg("Something went wrong. Please try again.")
+      setErrorMsg(
+        err instanceof Error && err.message
+          ? "Something went wrong. Please try again."
+          : "Something went wrong. Please try again."
+      )
     }
   }
 

@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Mail, MapPin, Instagram, Youtube, Twitter } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getContent, cms } from "@/lib/cms"
+import { ContactForm } from "@/components/contact-form"
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -137,29 +138,31 @@ function EmailSection({ c }: { c: ContentMap }) {
           {/* Purple glow */}
           <div className="absolute -right-20 -top-20 h-[300px] w-[300px] rounded-full bg-brand-purple/10 blur-[120px]" />
 
-          <div className="relative flex flex-col items-center gap-8 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full border border-brand-gold/20 bg-brand-gold/5">
-              <Mail className="h-7 w-7 text-brand-gold" />
-            </div>
-
-            <div className="flex flex-col gap-3">
+          <div className="relative flex flex-col gap-8">
+            <div className="flex flex-col items-center gap-3 text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full border border-brand-gold/20 bg-brand-gold/5">
+                <Mail className="h-7 w-7 text-brand-gold" />
+              </div>
               <h2 className="font-heading text-2xl font-bold tracking-tight text-[#e0e0e0] md:text-3xl">
                 {cms(c, "contact", "email", "title", "SEND US A MESSAGE")}
               </h2>
               <p className="max-w-[500px] text-sm font-light leading-relaxed text-[#999] md:text-base">
                 For business inquiries, press, partnerships, event
-                collaborations, or general questions — reach out directly.
+                collaborations, or general questions — send us a note below.
               </p>
             </div>
 
-            <Button
-              asChild
-              className="h-14 bg-brand-gold px-10 text-sm font-bold tracking-widest text-[#050505] hover:bg-brand-gold-dark"
-            >
-              <a href={`mailto:${email}`}>EMAIL US</a>
-            </Button>
+            <ContactForm />
 
-            <p className="text-xs text-[#666]">{email}</p>
+            <p className="text-center text-xs text-[#666]">
+              Prefer email? Reach us directly at{" "}
+              <a
+                href={`mailto:${email}`}
+                className="text-brand-gold underline underline-offset-2 hover:text-brand-gold/80"
+              >
+                {email}
+              </a>
+            </p>
           </div>
         </div>
       </div>
