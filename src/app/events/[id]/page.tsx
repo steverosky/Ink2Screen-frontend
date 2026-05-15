@@ -4,6 +4,8 @@ import Link from "next/link"
 import { MapPin, Clock, Users, Ticket, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { EventRegistrationForm } from "./registration-form"
+import { StructuredData } from "@/components/structured-data"
+import { eventSchema, breadcrumbSchema } from "@/lib/seo"
 import {
   getEvent,
   formatEventDate,
@@ -150,8 +152,31 @@ export default async function EventDetailPage({
   const isCompleted = event.status === "Completed"
   const canRegister = !isSoldOut && !isCancelled && !isCompleted
 
+  const eventJsonLd = eventSchema({
+    id: event.id,
+    title: event.title,
+    description: event.description,
+    startDate: event.start_date,
+    endDate: event.end_date,
+    venue: event.venue,
+    address: event.address,
+    city: event.city,
+    state: event.state,
+    image: event.image_url,
+    price: event.ticket_price,
+    isFree: event.is_free,
+    isSoldOut,
+    isCancelled,
+  })
+  const breadcrumbJsonLd = breadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "Events", path: "/events" },
+    { name: event.title },
+  ])
+
   return (
     <div className="bg-[#050505]">
+      <StructuredData data={[eventJsonLd, breadcrumbJsonLd]} />
       {/* Hero */}
       <section className="relative overflow-hidden bg-[#0a0a0a]">
         <div className="absolute inset-0">

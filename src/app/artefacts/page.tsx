@@ -4,6 +4,8 @@ import Image from "next/image"
 import { sdk, getDefaultRegionId } from "@/lib/sdk"
 import { WishlistButton } from "@/components/wishlist-button"
 import { getContent, cms } from "@/lib/cms"
+import { StructuredData } from "@/components/structured-data"
+import { breadcrumbSchema } from "@/lib/seo"
 
 export const metadata: Metadata = {
   title: "The Artifacts",
@@ -166,6 +168,12 @@ export default async function ArtefactsPage() {
 
   return (
     <div className="bg-[#050505]">
+      <StructuredData
+        data={breadcrumbSchema([
+          { name: "Home", path: "/" },
+          { name: "The Artifacts" },
+        ])}
+      />
       <HeroSection c={c} />
       <ProductGridSection products={products} />
       {/* Spacer before footer */}

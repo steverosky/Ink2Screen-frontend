@@ -7,6 +7,14 @@ import { ConsentBanner } from "@/components/consent-banner"
 import { ContentProtection } from "@/components/content-protection"
 import { Analytics } from "@/components/analytics"
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next"
+import { StructuredData } from "@/components/structured-data"
+import {
+  organizationSchema,
+  websiteSchema,
+  personSchema,
+  SITE_URL,
+  DEFAULT_OG_IMAGE,
+} from "@/lib/seo"
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -21,9 +29,6 @@ const montserrat = Montserrat({
   weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 })
-
-const SITE_URL = "https://www.ink2screenllc.com"
-const DEFAULT_OG_IMAGE = `${SITE_URL}/images/book-spotlight.png`
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -102,6 +107,9 @@ export default function RootLayout({
       <body
         className={`${cinzel.variable} ${montserrat.variable} flex min-h-screen flex-col font-body antialiased`}
       >
+        <StructuredData
+          data={[organizationSchema(), websiteSchema(), personSchema()]}
+        />
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />

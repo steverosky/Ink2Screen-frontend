@@ -4,6 +4,8 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Testimonials } from "@/components/testimonials"
 import { getContent, cms } from "@/lib/cms"
+import { StructuredData } from "@/components/structured-data"
+import { breadcrumbSchema } from "@/lib/seo"
 
 export const metadata: Metadata = {
   title: "About",
@@ -408,6 +410,12 @@ export default async function AboutPage() {
 
   return (
     <div className="bg-[#050505]">
+      <StructuredData
+        data={breadcrumbSchema([
+          { name: "Home", path: "/" },
+          { name: "About" },
+        ])}
+      />
       <HeroSection c={c} />
       <EngineerAuthorSection c={c} />
       <CapabilitiesSection c={c} />

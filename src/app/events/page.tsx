@@ -13,6 +13,8 @@ import {
   type EventListItem,
 } from "@/lib/events-api"
 import { getContent, cms } from "@/lib/cms"
+import { StructuredData } from "@/components/structured-data"
+import { breadcrumbSchema } from "@/lib/seo"
 
 export const metadata: Metadata = {
   title: "Events",
@@ -357,6 +359,12 @@ export default async function EventsPage() {
 
   return (
     <div className="bg-[#050505]">
+      <StructuredData
+        data={breadcrumbSchema([
+          { name: "Home", path: "/" },
+          { name: "Events" },
+        ])}
+      />
       <HeroSection c={c} />
       <FeaturedEventSection c={c} />
       <UpcomingEventsSection events={events} />

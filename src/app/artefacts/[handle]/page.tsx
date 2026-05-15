@@ -8,9 +8,43 @@ import { Testimonials } from "@/components/testimonials"
 import { ProductReviews } from "./product-reviews"
 import { ReviewForm } from "./review-form"
 import { ProductDetailClient } from "./product-detail-client"
+import { StructuredData } from "@/components/structured-data"
+import { productSchema, breadcrumbSchema } from "@/lib/seo"
 
 interface Props {
   params: Promise<{ handle: string }>
+}
+
+/** Fetch review aggregates server-side so they ship in the JSON-LD HTML. */
+async function getReviewAggregate(
+  productId: string
+): Promise<{ ratingValue: number; reviewCount: number } | null> {
+  try {
+    const data = await sdk.client.fetch<{
+      average_rating: number
+      count: number
+    }>(`/store/products/${productId}/reviews`, { method: "GET" })
+    if (!data || !data.count) return null
+    return { ratingValue: data.average_rating, reviewCount: data.count }
+  } catch {
+    return null
+  }
+}
+
+/** Heuristic: is this product the novel (richer Book schema) vs. merch. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function isBookProduct(product: any): boolean {
+  const haystack = [
+    product?.handle,
+    product?.title,
+    product?.subtitle,
+    product?.type?.value,
+    ...(product?.categories?.map((c: { name: string }) => c.name) ?? []),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase()
+  return /\b(book|novel|hardcover|paperback|raison)\b/.test(haystack)
 }
 
 async function getProduct(handle: string) {
@@ -236,33 +270,41 @@ export default async function ProductDetailPage({ params }: Props) {
     notFound()
   }
 
-  const recommended = await getRecommendedProducts(product.id)
+  const [recommended, ratingAggregate] = await Promise.all([
+    getRecommendedProducts(product.id),
+    getReviewAggregate(product.id),
+  ])
 
-  const ogImage = product.thumbnail || product.images?.[0]?.url || "/images/book-spotlight.png"
-  const price = product.variants?.[0]?.calculated_price?.calculated_amount
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: product.title,
+  const ogImage =
+    product.thumbnail || product.images?.[0]?.url || "/images/book-spotlight.png"
+  const firstVariant = product.variants?.[0]
+  const price = firstVariant?.calculated_price?.calculated_amount
+  const currency = firstVariant?.calculated_price?.currency_code || "usd"
+
+  const productJsonLd = productSchema({
+    handle,
+    title: product.title,
     description: product.description,
-    image: ogImage,
-    url: `https://www.ink2screenllc.com/artefacts/${handle}`,
-    brand: { "@type": "Brand", name: "Ink2Screen LLC Publishing" },
-    offers: price != null ? {
-      "@type": "Offer",
-      price: price.toString(),
-      priceCurrency: "USD",
-      availability: "https://schema.org/InStock",
-      seller: { "@type": "Organization", name: "Ink2Screen LLC Publishing" },
-    } : undefined,
-  }
+    image: ogImage.startsWith("http")
+      ? ogImage
+      : `https://www.ink2screenllc.com${ogImage}`,
+    price,
+    currency,
+    sku: firstVariant?.sku,
+    isBook: isBookProduct(product),
+    inStock: true,
+    aggregateRating: ratingAggregate,
+  })
+
+  const breadcrumbJsonLd = breadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "The Artifacts", path: "/artefacts" },
+    { name: product.title },
+  ])
 
   return (
     <div className="bg-[#050505]">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <StructuredData data={[productJsonLd, breadcrumbJsonLd]} />
       {/* Main product area with texture bg */}
       <section className="relative overflow-hidden bg-[#121212]">
         <div className="absolute inset-0">
