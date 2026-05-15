@@ -81,10 +81,10 @@ export default async function UnsubscribePage({
               This unsubscribe link is invalid or has expired. If you continue
               to receive emails, contact us at{" "}
               <a
-                href="mailto:Ink2screenllc@gmail.com"
+                href="mailto:info@ink2screenllc.com"
                 className="text-brand-gold underline underline-offset-2"
               >
-                Ink2screenllc@gmail.com
+                info@ink2screenllc.com
               </a>
               .
             </p>

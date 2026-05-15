@@ -72,7 +72,7 @@ export function ContactForm() {
       setErrorMsg(
         code === 429
           ? "You've sent a message recently. Please wait a minute and try again."
-          : "We couldn't send your message. Please email us directly at Ink2screenllc@gmail.com."
+          : "We couldn't send your message. Please email us directly at info@ink2screenllc.com."
       )
     }
   }

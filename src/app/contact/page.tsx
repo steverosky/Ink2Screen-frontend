@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 
 type ContentMap = Record<string, Record<string, Record<string, string>>>
 
-const DEFAULT_EMAIL = "Ink2screenllc@gmail.com"
+const DEFAULT_EMAIL = "info@ink2screenllc.com"
 
 function getSocialLinks(c: ContentMap) {
   return [
