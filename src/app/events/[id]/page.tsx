@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { EventRegistrationForm } from "./registration-form"
 import { StructuredData } from "@/components/structured-data"
 import { eventSchema, breadcrumbSchema } from "@/lib/seo"
+import { cmsImageUrl } from "@/lib/cms"
 import {
   getEvent,
   formatEventDate,
@@ -103,7 +104,7 @@ export async function generateMetadata({
   if (!event) return { title: "Event Not Found", robots: { index: false } }
 
   const description = event.description.slice(0, 160).replace(/\n/g, " ")
-  const ogImage = event.image_url || "/images/book-spotlight.png"
+  const ogImage = cmsImageUrl(event.image_url || "", "/images/book-spotlight.png")
   const url = `https://www.ink2screenllc.com/events/${id}`
 
   return {
@@ -162,7 +163,7 @@ export default async function EventDetailPage({
     address: event.address,
     city: event.city,
     state: event.state,
-    image: event.image_url,
+    image: event.image_url ? cmsImageUrl(event.image_url) : undefined,
     price: event.ticket_price,
     isFree: event.is_free,
     isSoldOut,

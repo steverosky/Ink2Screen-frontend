@@ -3,7 +3,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Testimonials } from "@/components/testimonials"
-import { getContent, cms } from "@/lib/cms"
+import { getContent, cms, cmsImageUrl } from "@/lib/cms"
 import { StructuredData } from "@/components/structured-data"
 import { breadcrumbSchema } from "@/lib/seo"
 
@@ -133,7 +133,7 @@ function EngineerAuthorSection({ c }: { c: Record<string, Record<string, Record<
           {/* Portrait */}
           <div className="relative h-full w-full max-w-[540px] pt-8">
             <Image
-              src={cms(c, "about", "founder", "portrait_image", "/images/sterling-portrait.jpg")}
+              src={cmsImageUrl(cms(c, "about", "founder", "portrait_image", ""), "/images/sterling-portrait.jpg")}
               alt="Sterling R. Smith"
               fill
               sizes="(max-width: 768px) 100vw, 540px"

@@ -12,7 +12,7 @@ import {
   EVENT_TYPE_LABELS,
   type EventListItem,
 } from "@/lib/events-api"
-import { getContent, cms } from "@/lib/cms"
+import { getContent, cms, cmsImageUrl } from "@/lib/cms"
 import { StructuredData } from "@/components/structured-data"
 import { breadcrumbSchema } from "@/lib/seo"
 
@@ -196,9 +196,9 @@ function EventCard({ event }: { event: EventListItem }) {
       className="group relative overflow-hidden rounded-[10px] border border-[#222] bg-[#121212] transition-colors hover:border-brand-gold/30"
     >
       <div className="relative h-[180px] overflow-hidden bg-[#1a1a1a]">
-        {event.image_url && event.image_url.startsWith("http") ? (
+        {event.image_url ? (
           <Image
-            src={event.image_url}
+            src={cmsImageUrl(event.image_url)}
             alt={event.title}
             fill
             sizes="(max-width: 768px) 100vw, 33vw"

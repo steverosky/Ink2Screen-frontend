@@ -16,6 +16,16 @@ const nextConfig = {
         protocol: "https",
         hostname: "medusa-public-images.s3.eu-west-1.amazonaws.com",
       },
+      // Render-hosted Medusa backend (static file uploads from CMS)
+      {
+        protocol: "https",
+        hostname: "*.onrender.com",
+      },
+      // Custom domain for the Medusa backend / admin
+      {
+        protocol: "https",
+        hostname: "admin.ink2screenllc.com",
+      },
       {
         protocol: "http",
         hostname: "localhost",

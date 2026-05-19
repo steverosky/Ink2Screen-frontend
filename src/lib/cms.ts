@@ -45,6 +45,36 @@ export function cms(
 }
 
 /**
+ * Resolve a CMS image value to a full URL suitable for Next.js <Image>.
+ *
+ * Handles three cases:
+ *  - "/images/..." local Next.js public path → returned as-is
+ *  - "/static/..."  Medusa-served file → prepended with the backend URL
+ *  - "https://..."  already absolute → returned as-is
+ *
+ * Falls back to `fallback` when value is empty.
+ */
+export function cmsImageUrl(value: string, fallback = ""): string {
+  if (!value) return fallback
+  if (value.startsWith("http://") || value.startsWith("https://")) {
+    // Already absolute — strip localhost origin so prod doesn't try to load
+    // from a dev server (happens if an image was saved before this fix).
+    try {
+      const u = new URL(value)
+      if (u.hostname === "localhost" || u.hostname === "127.0.0.1") {
+        return `${MEDUSA_URL}${u.pathname}`
+      }
+    } catch {
+      // malformed URL — fall through and return as-is
+    }
+    return value
+  }
+  if (value.startsWith("/static/")) return `${MEDUSA_URL}${value}`
+  // Local Next.js public path or relative path served from the frontend
+  return value
+}
+
+/**
  * Get all keys in a section as an object with fallbacks.
  *
  * ```ts

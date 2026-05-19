@@ -2,7 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { getContent } from "@/lib/cms"
+import { getContent, cmsImageUrl } from "@/lib/cms"
 import { SocialFeedSection } from "@/components/social-feed"
 
 /* Extract a YouTube video ID from a raw ID or any common URL form. */
@@ -56,8 +56,8 @@ function HeroSection({
   const footer_text =
     hero.footer_text ||
     "DEBUT NOVEL: RAISON D'ETRE  |  CREATED BY INK2SCREEN  |  STORIES ENGINEERED"
-  const book_art_image = hero.book_art_image || "/images/hero-book-art.png"
-  const book_cover_image = hero.book_cover_image || "/images/book-cover-back.png"
+  const book_art_image = cmsImageUrl(hero.book_art_image, "/images/hero-book-art.png")
+  const book_cover_image = cmsImageUrl(hero.book_cover_image, "/images/book-cover-back.png")
 
   return (
     <section className="relative min-h-[580px] overflow-hidden sm:h-[720px] sm:min-h-0">
@@ -223,8 +223,8 @@ function BookSpotlightSection({
     "A psychological deep dive into the human condition. Sterling R. Smith's debut novel challenges the boundaries of purpose and existence. Available in Hardcover and Digital formats."
   const cta_primary_text = s.cta_primary_text || "ORDER HARDCOVER"
   const cta_secondary_text = s.cta_secondary_text || "READ THE FIRST CHAPTER"
-  const front_image = s.front_image || "/images/book-spotlight.png"
-  const back_image = s.back_image || "/images/book-cover-back.png"
+  const front_image = cmsImageUrl(s.front_image, "/images/book-spotlight.png")
+  const back_image = cmsImageUrl(s.back_image, "/images/book-cover-back.png")
 
   return (
     <section className="relative overflow-hidden bg-[#121212]">
