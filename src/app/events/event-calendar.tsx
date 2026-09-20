@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   getCalendarEvents,
+  getEventDateParts,
   EVENT_TYPE_LABELS,
   type CalendarEvent,
 } from "@/lib/events-api"
@@ -51,8 +52,8 @@ export function EventCalendar() {
         if (!cancelled) {
           setEvents(
             PLACEHOLDER_CALENDAR_EVENTS.filter((e) => {
-              const d = new Date(e.start_date)
-              return d.getFullYear() === year && d.getMonth() + 1 === month
+              const d = getEventDateParts(e.start_date)
+              return d.year === year && d.month === month
             })
           )
         }
@@ -88,7 +89,7 @@ export function EventCalendar() {
 
   const eventsByDay = new Map<number, CalendarEvent[]>()
   for (const event of events) {
-    const day = new Date(event.start_date).getDate()
+    const day = getEventDateParts(event.start_date).day
     const existing = eventsByDay.get(day) || []
     existing.push(event)
     eventsByDay.set(day, existing)

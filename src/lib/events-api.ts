@@ -152,12 +152,20 @@ export const EVENT_TYPE_LABELS: Record<EventType, string> = {
   VirtualEvent: "Virtual Event",
 }
 
+/**
+ * All events are hosted in Houston, so dates are always rendered in the venue's
+ * timezone. Without this, server components (UTC on Render) and visitors'
+ * browsers would each show a different wall-clock time than the admin entered.
+ */
+export const EVENT_TIMEZONE = "America/Chicago"
+
 export function formatEventDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("en-US", {
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
+    timeZone: EVENT_TIMEZONE,
   })
 }
 
@@ -166,7 +174,25 @@ export function formatEventTime(dateStr: string): string {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
+    timeZone: EVENT_TIMEZONE,
   })
+}
+
+/** Calendar parts (year, month 1-12, day) of an event in the venue timezone. */
+export function getEventDateParts(dateStr: string): {
+  year: number
+  month: number
+  day: number
+} {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: EVENT_TIMEZONE,
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+  }).formatToParts(new Date(dateStr))
+  const get = (type: string) =>
+    Number(parts.find((p) => p.type === type)?.value ?? 0)
+  return { year: get("year"), month: get("month"), day: get("day") }
 }
 
 export function formatEventPrice(price: number): string {
